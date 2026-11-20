@@ -5,6 +5,7 @@ import {
 	clampRequestStartDateForRole,
 	type DangerLevels,
 	getHighestDangerLevel,
+	toUtcDateNumber,
 } from "./backend-utils.ts";
 import type { ExposureContext } from "./exposure-service.ts";
 import type { UserExposureStatusDto, UserStatusDto } from "./user-service.ts";
@@ -16,12 +17,17 @@ import { getColumnReader, queryView } from "./views.ts";
  * Aggregates the minutely views over the whole time range per user:
  * - noise: AVG(avg_noise_laeq) and MAX(max_noise_lcpk)
  * - dust: AVG(max_dust_pm1_twa)
- * - vibration: SUM(sum_vibration), compared with the daily thresholds even when the range is longer than a day
+ * - vibration: the highest daily total in the range (see below)
+ *
+ * DEMO DEVIATION: the backend uses SUM(sum_vibration) over the whole range and compares it with the *daily* thresholds,
+ * so in the week view five ordinary days add up to "above the limit value" for almost everyone. The demo uses the
+ * highest single-day total instead (days split at midnight UTC, like the cumulative vibration values), so a week shows
+ * its worst day, consistent with the day view.
  */
 
 type UserAggRow = { value: number; maxValue: number | null };
 
-type Aggregate = "avg" | "sum";
+type Aggregate = "avg" | "highestDailySum";
 
 function aggregateMinutely({
 	exposure,
@@ -49,13 +55,19 @@ function aggregateMinutely({
 		throw new Error(`Unknown column ${valueColumn}`);
 	}
 
-	const totals = new Map<string, { sum: number; count: number; max: number | null }>();
+	const totals = new Map<
+		string,
+		{ sum: number; count: number; max: number | null; dailySums: Map<number, number> }
+	>();
 
 	// WHERE bucket BETWEEN start AND end AND user_id = ANY(ids) GROUP BY user_id
 	for (const { userId, bucket } of queryView({ exposure, granularity: "minute", userIds, startMs, endMs, nowMs })) {
-		const total = totals.get(userId) ?? { sum: 0, count: 0, max: null };
-		total.sum += readValue(bucket);
+		const total = totals.get(userId) ?? { sum: 0, count: 0, max: null, dailySums: new Map() };
+		const value = readValue(bucket);
+		const date = toUtcDateNumber(bucket.time);
+		total.sum += value;
 		total.count++;
+		total.dailySums.set(date, (total.dailySums.get(date) ?? 0) + value);
 
 		if (readMax) {
 			const max = readMax(bucket);
@@ -68,7 +80,10 @@ function aggregateMinutely({
 	return new Map(
 		[...totals].map(([userId, total]) => [
 			userId,
-			{ value: valueAggregate === "avg" ? total.sum / total.count : total.sum, maxValue: total.max },
+			{
+				value: valueAggregate === "avg" ? total.sum / total.count : Math.max(...total.dailySums.values()),
+				maxValue: total.max,
+			},
 		]),
 	);
 }
@@ -133,7 +148,7 @@ export function getStatusForUsersInRange(
 		...range,
 		exposure: "vibration",
 		valueColumn: "sum_vibration",
-		valueAggregate: "sum",
+		valueAggregate: "highestDailySum",
 		maxColumn: null,
 	});
 

@@ -63,10 +63,11 @@ DEMO box of the user menu removes them.
 - **Hour domain**: the lowest/highest hour across all timestamps, instead of the hours of the earliest/latest timestamp,
   which cuts off the current week when data runs up to the current time.
 - **Notes**: times with a non-UTC offset are accepted. The frontend sends Oslo-offset times, which the backend rejects.
+- **Vibration status over a range** (foreman week view): the highest single-day total in the range, compared with the
+  daily limits. The backend sums the whole range against the daily limits, so a normal week is "above the limit value".
 - **Team**: 5 operators instead of the seeded 8 (Birgir, Torleif and Bjørnulf are left out).
 - **Sensor data levels**: balanced per operator profile instead of the seed's random multipliers of the sample data.
 - Passwords are not stored, and new users' `createdAt`/seed users' `createdAt` are set by the demo.
 
-Everything else, including quirks, follows the C#: e.g. vibration status sums over the whole selected range, the
-foreman 7-day limit, `count` on noise/dust failing with a 500, and an empty threshold summary for a foreman without a
-team.
+Everything else, including quirks, follows the C#: e.g. the foreman 7-day limit, `count` on noise/dust failing with a
+500, and an empty threshold summary for a foreman without a team.
