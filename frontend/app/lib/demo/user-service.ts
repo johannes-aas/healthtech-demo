@@ -87,7 +87,7 @@ function isUserState(value: unknown): value is UserState {
 	return Array.isArray(candidate?.users) && Array.isArray(candidate.managerLinks);
 }
 
-export function getUserState(): UserState {
+function getUserState(): UserState {
 	state ??= readStored("users", isUserState) ?? createSeedState();
 	return state;
 }

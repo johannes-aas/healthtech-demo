@@ -26,7 +26,7 @@ export type SeedUser = {
 };
 
 // SeedIds.cs
-export const SEED_IDS = {
+const SEED_IDS = {
 	kari: "87654321-8765-4321-8765-432187654321",
 	ola: "12345678-1234-5678-1234-567812345678",
 	per: "aaa3801e-f3ff-4b0c-9692-56e7505e9c31",

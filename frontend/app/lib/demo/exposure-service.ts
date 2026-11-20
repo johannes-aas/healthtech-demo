@@ -64,11 +64,7 @@ type RawExposureData = {
 };
 
 /** `ExposureUtils.GetAggregateColumnName`. Can produce names that don't exist in the view (e.g. `sample_count_laeq`). */
-export function getAggregateColumnName(
-	fn: AggregateFnKey,
-	exposure: Exposure,
-	field: ExposureTypeField | null,
-): string {
+function getAggregateColumnName(fn: AggregateFnKey, exposure: Exposure, field: ExposureTypeField | null): string {
 	// Noise uses laeq for average and lcpk for max
 	if (exposure === "noise") {
 		if (fn === "avg") {

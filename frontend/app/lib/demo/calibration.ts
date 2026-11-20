@@ -6,6 +6,8 @@ import type { QuantileTable } from "./random.ts";
  * All numbers are summary statistics (percentiles, shares and rates) computed from the sample CSVs that were used to
  * seed the real database (NoiseData.csv, DustData.csv, VibrationData.csv). No rows from those files are included.
  * In the CSVs, samples come every 30 seconds between 07:00 and 15:00 UTC, which is also what we generate.
+ *
+ * To recompute them: `python3 -I frontend/app/lib/demo/scripts/sensor_data_stats.py <folder with the CSVs>`
  */
 
 export const SAMPLE_INTERVAL_MS = 30_000;
@@ -118,11 +120,11 @@ export const DUST_CLEAN_STEL: QuantileTable = [
 	[1, 69.1],
 ];
 
-/** Larger particle sizes read a bit higher on clean days (ratios of the maxima per size, relative to PM1). */
+/** Larger particle sizes read a bit higher on clean days (99th percentile per size, relative to PM1). */
 export const DUST_CLEAN_SIZE_FACTOR = {
 	pm1: { twa: 1, stel: 1 },
-	pm25: { twa: 1.05, stel: 1.08 },
-	pm4: { twa: 1.15, stel: 1.22 },
+	pm25: { twa: 1.07, stel: 1.07 },
+	pm4: { twa: 1.19, stel: 1.21 },
 	pm10: { twa: 1.22, stel: 1.26 },
 } as const;
 
