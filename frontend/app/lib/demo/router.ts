@@ -1,5 +1,6 @@
 import { DEFAULT_USER } from "@/features/user/user-utils.ts";
 import { DemoHttpError, jsonResponse, noContentResponse, notFound, textResponse } from "./http.ts";
+import { getAllUsersAction, getSubordinatesAction, getUserByIdAction } from "./user-controller.ts";
 
 /**
  * In-browser replacement for the backend API, used when `VITE_DEMO_MODE=true`.
@@ -55,15 +56,15 @@ route("PUT", "notes/:userId", ({ body }) => body);
 route("DELETE", "notes/:userId", ({ body }) => ({ note: "", time: body }));
 
 // UserController
-route("GET", "users", () => [DEFAULT_USER]);
+route("GET", "users", getAllUsersAction);
 route("GET", "users/:id/subordinates/threshold-summary", () => ({
 	noise: EMPTY_THRESHOLD_COUNTS,
 	dust: EMPTY_THRESHOLD_COUNTS,
 	vibration: EMPTY_THRESHOLD_COUNTS,
 	total: EMPTY_THRESHOLD_COUNTS,
 }));
-route("GET", "users/:id/subordinates", () => []);
-route("GET", "users/:id", () => DEFAULT_USER);
+route("GET", "users/:id/subordinates", getSubordinatesAction);
+route("GET", "users/:id", getUserByIdAction);
 route("POST", "users", () => DEFAULT_USER);
 route("PUT", "users/:id/subordinates/delete", () => DEFAULT_USER);
 route("PUT", "users/:id/subordinates/create", () => DEFAULT_USER);

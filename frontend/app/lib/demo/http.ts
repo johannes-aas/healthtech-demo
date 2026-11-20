@@ -16,6 +16,17 @@ export const badRequest = (message: string) => new DemoHttpError(400, message);
 export const notFound = (message = "Not Found") => new DemoHttpError(404, message);
 export const internalServerError = (message = "Internal server error") => new DemoHttpError(500, message);
 
+const GUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Mirrors ASP.NET model binding of a `Guid` route parameter: invalid values are a 400. Returns the normalized GUID. */
+export function parseGuid(value: string): string {
+	if (!GUID_PATTERN.test(value)) {
+		throw badRequest(`The value '${value}' is not valid.`);
+	}
+
+	return value.toLowerCase();
+}
+
 export function jsonResponse(body: unknown, status = 200): Response {
 	return new Response(JSON.stringify(body), {
 		status,
