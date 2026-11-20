@@ -70,7 +70,7 @@ let state: UserState | null = null;
 
 function createSeedState(): UserState {
 	// The seeder uses `DateTime.UtcNow` at seed time, we use the start of the generated data instead
-	const createdAt = getDataStart().toISOString();
+	const createdAt = new Date(getDataStart()).toISOString();
 
 	return {
 		users: SEED_USERS.map((user) => ({ ...user, createdAt })),
