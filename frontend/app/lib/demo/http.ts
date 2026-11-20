@@ -5,14 +5,18 @@
 /** Thrown by demo handlers to short-circuit with an HTTP error, like returning `BadRequest(...)` in a controller. */
 export class DemoHttpError extends Error {
 	readonly status: number;
+	/** JSON body, for errors the backend returns as objects (e.g. `BadRequest(new { error = ... })`). */
+	readonly body: unknown;
 
-	constructor(status: number, message: string) {
+	constructor(status: number, message: string, body?: unknown) {
 		super(message);
 		this.status = status;
+		this.body = body;
 	}
 }
 
 export const badRequest = (message: string) => new DemoHttpError(400, message);
+export const badRequestObject = (error: string) => new DemoHttpError(400, error, { error });
 export const notFound = (message = "Not Found") => new DemoHttpError(404, message);
 export const internalServerError = (message = "Internal server error") => new DemoHttpError(500, message);
 

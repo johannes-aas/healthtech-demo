@@ -1,4 +1,5 @@
 import { DEFAULT_USER } from "@/features/user/user-utils.ts";
+import { getAggregatedDataAction, getOverviewDataAction } from "./exposure-controller.ts";
 import { DemoHttpError, jsonResponse, noContentResponse, notFound, textResponse } from "./http.ts";
 import { getAllUsersAction, getSubordinatesAction, getUserByIdAction } from "./user-controller.ts";
 
@@ -40,14 +41,8 @@ function route(method: HttpMethod, pattern: string, handler: Handler) {
 // NOTE: Order matters, the first matching route wins (`exposure/overview/:userId` must come before `exposure/:exposureType/:userId`).
 
 // ExposureDataController
-route("POST", "exposure/overview/:userId", () => ({
-	data: [],
-	hourDomain: { minHourUtc: 0, maxHourUtc: 23 },
-}));
-route("POST", "exposure/:exposureType/:userId", () => ({
-	data: [],
-	hourDomain: { minHourUtc: 0, maxHourUtc: 23 },
-}));
+route("POST", "exposure/overview/:userId", getOverviewDataAction);
+route("POST", "exposure/:exposureType/:userId", getAggregatedDataAction);
 
 // NoteDataController
 route("POST", "notes/:userId/create", ({ body }) => body);
@@ -135,7 +130,9 @@ export async function handleDemoRequest(
 		return result instanceof Response ? result : jsonResponse(result);
 	} catch (error) {
 		if (error instanceof DemoHttpError) {
-			return textResponse(error.message, error.status);
+			return error.body === undefined
+				? textResponse(error.message, error.status)
+				: jsonResponse(error.body, error.status);
 		}
 
 		console.error("Demo API handler failed", error);

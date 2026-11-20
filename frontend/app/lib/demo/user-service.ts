@@ -93,6 +93,14 @@ export function getUserById(id: string): DemoUser | undefined {
 	return getUserState().users.find((user) => user.id === id);
 }
 
+/**
+ * `SignedInUserMiddleware`: the `signedInUserId` query parameter is looked up if it is a valid GUID.
+ * NOTE: Like the prototype backend, this is not authentication, just a way to know the user's role.
+ */
+export function getSignedInUser(signedInUserId: string): DemoUser | undefined {
+	return getUserById(signedInUserId.toLowerCase());
+}
+
 /** `GetSubordinatesAsync`: users that have `managerId` as one of their managers, ordered by name. */
 export function getSubordinates(managerId: string): Array<DemoUser> {
 	const { users, managerLinks } = getUserState();
