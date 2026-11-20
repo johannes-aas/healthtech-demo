@@ -2,3 +2,6 @@
 .vscode/
 .idea/
 .DS_Store
+
+# Sample sensor CSVs used to calibrate the demo data generator (large, not committed)
+sensor-data/
