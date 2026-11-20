@@ -43,8 +43,9 @@ modules here are ports of the backend, named after the C# they come from:
 
 Sensor data (`generator.ts`, `time.ts`, `calibration.ts`):
 
-- Weekdays from the start of the month two months ago, 07:00–15:00 UTC with a sample every 30 s, like the sample data.
-  Today always has data up to the current time, also in the evening and on weekends.
+- Weekdays from the start of the month two months ago, 07:00–15:00 UTC (08:00–16:00 Norwegian time in winter) with a
+  sample every 30 s, like the sample data. Today is the same, but stops at the current time while the shift is going,
+  so "live" and "today" are empty before the shift, in the evening and at weekends.
 - Deterministic: values are a hash of user, sample time and stream (`random.ts`), so every visitor sees the same data,
   and it is generated lazily per user and day, then cached.
 - Shaped after summary statistics of the original sample CSVs (`scripts/sensor_data_stats.py`), and scaled per user

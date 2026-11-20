@@ -146,9 +146,6 @@ export const VIBRATION_HOURLY_SHARE: Record<number, number> = {
 	14: 0.0381,
 };
 
-/** Used for hours outside the normal shift (only happens "today", see `time.ts`). */
-export const VIBRATION_OFF_SHIFT_HOURLY_SHARE = 1 / 8;
-
 export const VIBRATION_POINTS: QuantileTable = [
 	[0, 0],
 	[0.2147, 0],

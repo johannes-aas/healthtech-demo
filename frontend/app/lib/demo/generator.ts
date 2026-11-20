@@ -18,7 +18,6 @@ import {
 	NOISE_QUIET_LAEQ,
 	SAMPLE_INTERVAL_MS,
 	VIBRATION_HOURLY_SHARE,
-	VIBRATION_OFF_SHIFT_HOURLY_SHARE,
 	VIBRATION_POINTS,
 	VIBRATION_SESSIONS_PER_DAY,
 } from "./calibration.ts";
@@ -132,7 +131,7 @@ function generateDust(userId: string, day: DataDay, builder: BucketBuilder) {
 }
 
 function getSessionsPerMinute(time: number): number {
-	const hourShare = VIBRATION_HOURLY_SHARE[new Date(time).getUTCHours()] ?? VIBRATION_OFF_SHIFT_HOURLY_SHARE;
+	const hourShare = VIBRATION_HOURLY_SHARE[new Date(time).getUTCHours()] ?? 0;
 	return (VIBRATION_SESSIONS_PER_DAY * hourShare) / 60;
 }
 

@@ -269,8 +269,8 @@ export function getHourDomainForWeek(
 /**
  * DEMO DEVIATION: the backend returns the UTC hour of the earliest and of the latest timestamp
  * (`timestamps.Min().Hour`, `timestamps.Max().Hour`). With data up to the current time that cuts off the current
- * week during the day (e.g. at 10:00 the latest timestamp is today 09:00, hiding earlier days' afternoons), and at night
- * it can even give min > max. We use the lowest and highest hour across all timestamps instead.
+ * week during the day (e.g. at 10:00 the latest timestamp is today 09:00, hiding earlier days' afternoons). We use the
+ * lowest and highest hour across all timestamps instead.
  */
 function getHourDomain(timestamps: Array<number>): HourDomain {
 	if (timestamps.length === 0) {
