@@ -37,8 +37,7 @@ modules here are ports of the backend, named after the C# they come from:
 | `user-status-service.ts`                               | `UserStatusService`                                           |
 | `note-controller.ts`, `note-service.ts`                | `NoteDataController`, `NoteDataService`                       |
 | `backend-utils.ts`                                     | `AuthorizationUtils`, `TimeWindowUtils`, `ThresholdUtils`     |
-| `seed-data.ts`                                         | `DatabaseSeeder`, `SeedIds`                                   |
-| `profiles.ts`                                          | `seed_user_profile` in `backend/seed/seed.sql`                |
+| `seed-data.ts`                                         | `DatabaseSeeder`, `SeedIds` (smaller team, see below)         |
 | `views.ts`, `buckets.ts`                               | The TimescaleDB materialized views (`time_bucket`, UTC)       |
 
 Sensor data (`generator.ts`, `time.ts`, `calibration.ts`):
@@ -48,8 +47,13 @@ Sensor data (`generator.ts`, `time.ts`, `calibration.ts`):
   so "live" and "today" are empty before the shift, in the evening and at weekends.
 - Deterministic: values are a hash of user, sample time and stream (`random.ts`), so every visitor sees the same data,
   and it is generated lazily per user and day, then cached.
-- Shaped after summary statistics of the original sample CSVs (`scripts/sensor_data_stats.py`), and scaled per user
-  like `seed_user_profile`. Each user has their own random series.
+- Each day gets a target level per exposure (noise day average, dust day average, vibration day total), drawn from
+  tables in `calibration.ts` and shifted by the operator's profile (`profiles.ts`). The samples are generated around
+  it: noise as work bursts over a quiet background, dust drifting from hour to hour, vibration as tool connections.
+- Timing and signal shapes come from summary statistics of the original sample CSVs (`scripts/sensor_data_stats.py`);
+  the levels are balanced by hand, since the sample data is far more extreme. Across the team, about half of all days
+  are within safe limits, a bit under half above the action value, and a few percent above the limit value.
+- Only the operators have data; the foreman (Ola) has none.
 
 Writes (notes, users, team members) are stored per visitor in localStorage (`storage.ts`). "Reset demo data" in the
 DEMO box of the user menu removes them.
@@ -59,6 +63,8 @@ DEMO box of the user menu removes them.
 - **Hour domain**: the lowest/highest hour across all timestamps, instead of the hours of the earliest/latest timestamp,
   which cuts off the current week when data runs up to the current time.
 - **Notes**: times with a non-UTC offset are accepted. The frontend sends Oslo-offset times, which the backend rejects.
+- **Team**: 5 operators instead of the seeded 8 (Birgir, Torleif and Bjørnulf are left out).
+- **Sensor data levels**: balanced per operator profile instead of the seed's random multipliers of the sample data.
 - Passwords are not stored, and new users' `createdAt`/seed users' `createdAt` are set by the demo.
 
 Everything else, including quirks, follows the C#: e.g. vibration status sums over the whole selected range, the
