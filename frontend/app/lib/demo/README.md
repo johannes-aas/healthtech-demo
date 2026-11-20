@@ -5,8 +5,9 @@ data generated on the fly. It can be hosted as a static site (Netlify, Cloudflar
 
 ## Enabling it
 
-Set `VITE_DEMO_MODE=true` at build time (or in `frontend/.env` for `pnpm run dev`). `VITE_API_BASE_URL` must still be
-a valid absolute URL, but it is never called. Without the flag, the app talks to the backend exactly as before.
+Set `VITE_DEMO_MODE=true` at build time (or in `frontend/.env` for `pnpm run dev`). Without the flag, the app talks to
+the backend exactly as before, and none of the demo code ends up in the bundle. In demo mode `VITE_API_BASE_URL` is
+not used (the backend branch is removed from the bundle), so any placeholder will do.
 
 ```sh
 cd frontend
