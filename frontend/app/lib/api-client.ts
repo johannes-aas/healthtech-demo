@@ -19,6 +19,12 @@ function getSignedInUserId(): string {
 
 // NOTE: For the prototype we don't have proper authentication, so we do a make-shift solution where the client includes the signed in user ID in the query parameters of each request
 export async function fetchWithUserId(path: string, init?: RequestInit): Promise<Response> {
+	// Demo mode: answer every request in the browser instead of calling the backend (see lib/demo/router.ts)
+	if (import.meta.env.VITE_DEMO_MODE === "true") {
+		const { handleDemoRequest } = await import("./demo/router.ts");
+		return handleDemoRequest(path, init, getSignedInUserId());
+	}
+
 	const url = new URL(path, baseURL);
 	url.searchParams.set("signedInUserId", getSignedInUserId());
 
