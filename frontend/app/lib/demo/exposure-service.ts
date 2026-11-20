@@ -245,7 +245,7 @@ function getHigherDangerLevel(a: DangerLevel, b: DangerLevel): DangerLevel {
  * `GetHourDomainForWeekAsync`.
  *
  * Despite the name (and the unused week start/end in the C#), this uses the requested (clamped) time range with hourly
- * granularity. The domain is the UTC hour of the earliest and of the latest timestamp.
+ * granularity.
  */
 export function getHourDomainForWeek(
 	requests: Array<[Exposure, ExposureRequest]>,
@@ -270,13 +270,18 @@ export function getHourDomainForWeek(
 	return getHourDomain([...timestamps]);
 }
 
+/**
+ * DEMO DEVIATION: the backend returns the UTC hour of the earliest and of the latest timestamp
+ * (`timestamps.Min().Hour`, `timestamps.Max().Hour`). With data up to the current time that cuts off the current
+ * week during the day (e.g. at 10:00 the latest timestamp is today 09:00, hiding earlier days' afternoons), and at night
+ * it can even give min > max. We use the lowest and highest hour across all timestamps instead.
+ */
 function getHourDomain(timestamps: Array<number>): HourDomain {
 	if (timestamps.length === 0) {
 		return { minHourUtc: 0, maxHourUtc: 23 };
 	}
 
-	const min = Math.min(...timestamps);
-	const max = Math.max(...timestamps);
+	const hours = timestamps.map((time) => new Date(time).getUTCHours());
 
-	return { minHourUtc: new Date(min).getUTCHours(), maxHourUtc: new Date(max).getUTCHours() };
+	return { minHourUtc: Math.min(...hours), maxHourUtc: Math.max(...hours) };
 }
