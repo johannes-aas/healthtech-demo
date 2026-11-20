@@ -25,6 +25,8 @@ import { useView } from "@/features/views/use-view.ts";
 import { useFormatDate } from "@/hooks/use-format-date.ts";
 import type { TranslateFn } from "@/i18n/config.ts";
 import { usersQueryOptions } from "@/lib/api.ts";
+import { ResetDemoDataButton } from "@/lib/demo/reset-demo-data-button.tsx";
+import { IS_DEMO_MODE } from "@/lib/demo/storage.ts";
 import { type User, UserRoleSchema } from "@/lib/dto/user.ts";
 import { cn, shorthandName, userRoleToString } from "@/lib/utils.ts";
 import { useQuery } from "@tanstack/react-query";
@@ -392,6 +394,8 @@ function UserDropdown({
 						>
 							<Link to="/register">{t(($) => $.demo.navigate.toRegister)}</Link>
 						</Button>
+
+						{IS_DEMO_MODE && <ResetDemoDataButton />}
 					</div>
 				</DropdownMenuContent>
 			</DropdownMenu>

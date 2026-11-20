@@ -1,10 +1,14 @@
 import type { Exposure } from "@/features/exposure-picker/exposures.ts";
 import type { DangerLevel } from "@/lib/danger-levels.ts";
+import type { UserRole } from "@/lib/dto/user.ts";
 import { getHighestDangerLevel } from "./backend-utils.ts";
 import type { ExposureContext } from "./exposure-service.ts";
-import { badRequest, notFound, parseGuid } from "./http.ts";
+import { badRequest, noContentResponse, notFound, parseGuid } from "./http.ts";
+import { deleteNotesForUser } from "./note-service.ts";
 import type { DemoRequest } from "./router.ts";
 import {
+	createUser,
+	deleteUser,
 	getAllUsers,
 	getSignedInUser,
 	getSubordinates,
@@ -14,6 +18,8 @@ import {
 	type UserDto,
 	type UserStatusDto,
 	type UserWithStatusDto,
+	updateSubordinates,
+	updateUser,
 } from "./user-service.ts";
 import { getStatusForUsersInRange } from "./user-status-service.ts";
 
@@ -145,4 +151,140 @@ export function getSubordinatesThresholdStatusAction({ params, query, signedInUs
 	}
 
 	return summary;
+}
+
+// --- Writes ---
+
+function asObject(body: unknown): Record<string, unknown> {
+	if (typeof body !== "object" || body === null) {
+		throw badRequest("A non-empty request body is required.");
+	}
+
+	return body as Record<string, unknown>;
+}
+
+function parseGuidList(body: unknown): Array<string> {
+	if (!Array.isArray(body)) {
+		throw badRequest("The JSON value could not be converted to System.Collections.Generic.List`1[System.Guid].");
+	}
+
+	return body.map((value) => parseGuid(String(value)));
+}
+
+function requiredString(dto: Record<string, unknown>, key: string, name: string): string {
+	const value = dto[key];
+
+	if (typeof value !== "string" || value === "") {
+		throw badRequest(`The ${name} field is required.`);
+	}
+
+	return value;
+}
+
+function optionalString(dto: Record<string, unknown>, key: string): string | null {
+	const value = dto[key];
+	return typeof value === "string" ? value : null;
+}
+
+/** `UserRole` binding: camelCase name (any case) or the numeric value (Operator = 0, Foreman = 10). */
+function parseRole(value: unknown): UserRole {
+	const byValue: Record<string, UserRole> = {
+		"0": "operator",
+		"10": "foreman",
+		operator: "operator",
+		foreman: "foreman",
+	};
+	const role = byValue[String(value).toLowerCase()];
+
+	if (!role) {
+		throw badRequest("The Role field is required.");
+	}
+
+	return role;
+}
+
+// POST users
+export function createUserAction({ body }: DemoRequest): UserDto {
+	const dto = asObject(body);
+
+	const name = requiredString(dto, "name", "Name");
+	const email = requiredString(dto, "email", "Email");
+	// Required by the DTO, but the demo doesn't store passwords
+	requiredString(dto, "password", "Password");
+	const locationId = parseGuid(requiredString(dto, "locationId", "LocationId"));
+	// Required by the DTO, but `CreateUserAsync` doesn't use it
+	parseGuidList(dto.managerIds);
+	const role = parseRole(dto.role);
+
+	const user = createUser({ name, email, jobDescription: optionalString(dto, "jobDescription"), locationId, role });
+
+	return toUserDto(user);
+}
+
+// PUT users/{id}
+export function updateUserAction({ params, body }: DemoRequest): UserDto {
+	const id = parseGuid(params.id);
+	const dto = asObject(body);
+
+	const user = updateUser(id, {
+		name: optionalString(dto, "name"),
+		email: optionalString(dto, "email"),
+		jobDescription: optionalString(dto, "jobDescription"),
+	});
+
+	if (!user) {
+		throw notFound();
+	}
+
+	return toUserDto(user);
+}
+
+// DELETE users/{id}
+export function deleteUserAction({ params }: DemoRequest): Response {
+	const id = parseGuid(params.id);
+
+	if (!deleteUser(id)) {
+		throw notFound();
+	}
+
+	deleteNotesForUser(id);
+
+	return noContentResponse();
+}
+
+// PUT users/{managerId}/subordinates/delete
+export function deleteSubordinatesAction({ params, body }: DemoRequest): UserDto {
+	const managerId = parseGuid(params.id);
+	const subordinateIds = parseGuidList(body);
+
+	const remainingSubordinateIds = getSubordinates(managerId)
+		.map((subordinate) => subordinate.id)
+		.filter((id) => !subordinateIds.includes(id));
+
+	const user = updateSubordinates(managerId, remainingSubordinateIds);
+
+	if (!user) {
+		throw notFound();
+	}
+
+	return toUserDto(user);
+}
+
+// PUT users/{managerId}/subordinates/create
+export function createSubordinatesAction({ params, body }: DemoRequest): UserDto {
+	const managerId = parseGuid(params.id);
+	const subordinateIds = parseGuidList(body);
+
+	const newSubordinateIdList = [
+		...getSubordinates(managerId).map((subordinate) => subordinate.id),
+		...subordinateIds,
+	];
+
+	const user = updateSubordinates(managerId, newSubordinateIdList);
+
+	if (!user) {
+		throw notFound();
+	}
+
+	return toUserDto(user);
 }

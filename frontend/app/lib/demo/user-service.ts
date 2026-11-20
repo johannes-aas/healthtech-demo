@@ -8,10 +8,14 @@ import {
 	type SeedLocation,
 	type SeedUser,
 } from "./seed-data.ts";
+import { internalServerError } from "./http.ts";
+import { hasSensorData } from "./profiles.ts";
+import { readStored, writeStored } from "./storage.ts";
 import { getDataStart } from "./time.ts";
 
 /**
- * Port of `backend/src/Services/UserService.cs` (read side) and the DTO mapping in `Controllers/DTOs/UserDTOs`.
+ * Port of `backend/src/Services/UserService.cs` and the DTO mapping in `Controllers/DTOs/UserDTOs`.
+ * Starts from the seed data; once the visitor changes something, the whole user state is saved in localStorage.
  */
 
 export type DemoUser = SeedUser & {
@@ -78,9 +82,18 @@ function createSeedState(): UserState {
 	};
 }
 
+function isUserState(value: unknown): value is UserState {
+	const candidate = value as Partial<UserState> | null;
+	return Array.isArray(candidate?.users) && Array.isArray(candidate.managerLinks);
+}
+
 export function getUserState(): UserState {
-	state ??= createSeedState();
+	state ??= readStored("users", isUserState) ?? createSeedState();
 	return state;
+}
+
+function saveUserState() {
+	writeStored("users", getUserState());
 }
 
 // --- Queries (UserService) ---
@@ -161,4 +174,110 @@ export function toUserDto(user: DemoUser): UserDto {
 
 export function toUserWithStatusDto(user: DemoUser, status: UserStatusDto): UserWithStatusDto {
 	return { ...toUserDto(user), status };
+}
+
+// --- Writes (UserService) ---
+
+// `UserRole` enum values: higher can manage lower (`UserRoleExtensions.CanManage`)
+const ROLE_RANK: Record<UserRole, number> = { operator: 0, foreman: 10 };
+
+const canManage = (managerRole: UserRole, subordinateRole: UserRole) =>
+	ROLE_RANK[managerRole] > ROLE_RANK[subordinateRole];
+
+/** `CreateUserAsync`. Note: like the backend, the given manager IDs are not used. */
+export function createUser(input: {
+	name: string;
+	email: string;
+	jobDescription: string | null;
+	locationId: string;
+	role: UserRole;
+}): DemoUser {
+	if (!SEED_LOCATIONS.some((location) => location.id === input.locationId)) {
+		// Foreign key violation in the backend
+		throw internalServerError();
+	}
+
+	const user: DemoUser = { id: crypto.randomUUID(), ...input, createdAt: new Date().toISOString() };
+	getUserState().users.push(user);
+	saveUserState();
+
+	return user;
+}
+
+/** `UpdateUserAsync`: only name, email and job description are applied (the password isn't stored in the demo). */
+export function updateUser(
+	id: string,
+	input: { name?: string | null; email?: string | null; jobDescription?: string | null },
+): DemoUser | null {
+	const user = getUserById(id);
+
+	if (!user) {
+		return null;
+	}
+
+	user.name = input.name ?? user.name;
+	user.email = input.email ?? user.email;
+	user.jobDescription = input.jobDescription ?? user.jobDescription;
+	saveUserState();
+
+	return user;
+}
+
+/**
+ * `DeleteUserAsync`. Manager links (and notes, see `note-service.ts`) cascade, but sensor data is
+ * `DeleteBehavior.Restrict`, so users with sensor data can't be deleted (a 500 in the backend).
+ */
+export function deleteUser(id: string): boolean {
+	const userState = getUserState();
+	const user = getUserById(id);
+
+	if (!user) {
+		return false;
+	}
+
+	if (hasSensorData(id)) {
+		throw internalServerError();
+	}
+
+	userState.users = userState.users.filter((candidate) => candidate.id !== id);
+	userState.managerLinks = userState.managerLinks.filter(
+		(link) => link.managerId !== id && link.subordinateId !== id,
+	);
+	saveUserState();
+
+	return true;
+}
+
+/** `UpdateSubordinatesAsync`: replaces the manager's subordinates. Returns null (a 404) if the list isn't valid. */
+export function updateSubordinates(managerId: string, subordinateIds: Array<string>): DemoUser | null {
+	const userState = getUserState();
+	const manager = getUserById(managerId);
+
+	if (!manager) {
+		return null;
+	}
+
+	const newSubordinates = userState.users.filter((user) => subordinateIds.includes(user.id));
+
+	if (subordinateIds.length > 0) {
+		if (newSubordinates.length !== new Set(subordinateIds).size) {
+			return null;
+		}
+
+		if (newSubordinates.some((user) => user.id === managerId)) {
+			return null;
+		}
+
+		if (!newSubordinates.every((user) => canManage(manager.role, user.role))) {
+			return null;
+		}
+	}
+
+	userState.managerLinks = [
+		...userState.managerLinks.filter((link) => link.managerId !== managerId),
+		...newSubordinates.map((user) => ({ managerId, subordinateId: user.id })),
+	];
+	saveUserState();
+
+	return manager;
 }

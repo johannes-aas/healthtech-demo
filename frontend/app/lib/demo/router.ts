@@ -1,11 +1,16 @@
-import { DEFAULT_USER } from "@/features/user/user-utils.ts";
 import { getAggregatedDataAction, getOverviewDataAction } from "./exposure-controller.ts";
-import { DemoHttpError, jsonResponse, noContentResponse, notFound, textResponse } from "./http.ts";
+import { DemoHttpError, jsonResponse, notFound, textResponse } from "./http.ts";
+import { createNoteAction, deleteNoteAction, getNotesAction, updateNoteAction } from "./note-controller.ts";
 import {
+	createSubordinatesAction,
+	createUserAction,
+	deleteSubordinatesAction,
+	deleteUserAction,
 	getAllUsersAction,
 	getSubordinatesAction,
 	getSubordinatesThresholdStatusAction,
 	getUserByIdAction,
+	updateUserAction,
 } from "./user-controller.ts";
 
 /**
@@ -48,21 +53,21 @@ route("POST", "exposure/overview/:userId", getOverviewDataAction);
 route("POST", "exposure/:exposureType/:userId", getAggregatedDataAction);
 
 // NoteDataController
-route("POST", "notes/:userId/create", ({ body }) => body);
-route("POST", "notes/:userId", () => []);
-route("PUT", "notes/:userId", ({ body }) => body);
-route("DELETE", "notes/:userId", ({ body }) => ({ note: "", time: body }));
+route("POST", "notes/:userId/create", createNoteAction);
+route("POST", "notes/:userId", getNotesAction);
+route("PUT", "notes/:userId", updateNoteAction);
+route("DELETE", "notes/:userId", deleteNoteAction);
 
 // UserController
 route("GET", "users", getAllUsersAction);
 route("GET", "users/:id/subordinates/threshold-summary", getSubordinatesThresholdStatusAction);
 route("GET", "users/:id/subordinates", getSubordinatesAction);
 route("GET", "users/:id", getUserByIdAction);
-route("POST", "users", () => DEFAULT_USER);
-route("PUT", "users/:id/subordinates/delete", () => DEFAULT_USER);
-route("PUT", "users/:id/subordinates/create", () => DEFAULT_USER);
-route("PUT", "users/:id", () => DEFAULT_USER);
-route("DELETE", "users/:id", () => noContentResponse());
+route("POST", "users", createUserAction);
+route("PUT", "users/:id/subordinates/delete", deleteSubordinatesAction);
+route("PUT", "users/:id/subordinates/create", createSubordinatesAction);
+route("PUT", "users/:id", updateUserAction);
+route("DELETE", "users/:id", deleteUserAction);
 
 function matchRoute(method: string, pathSegments: Array<string>) {
 	for (const candidate of routes) {
