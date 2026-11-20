@@ -1,7 +1,12 @@
 import { DEFAULT_USER } from "@/features/user/user-utils.ts";
 import { getAggregatedDataAction, getOverviewDataAction } from "./exposure-controller.ts";
 import { DemoHttpError, jsonResponse, noContentResponse, notFound, textResponse } from "./http.ts";
-import { getAllUsersAction, getSubordinatesAction, getUserByIdAction } from "./user-controller.ts";
+import {
+	getAllUsersAction,
+	getSubordinatesAction,
+	getSubordinatesThresholdStatusAction,
+	getUserByIdAction,
+} from "./user-controller.ts";
 
 /**
  * In-browser replacement for the backend API, used when `VITE_DEMO_MODE=true`.
@@ -30,8 +35,6 @@ type Route = {
 // Any valid absolute URL works; it is only used to split the relative API path into path and query parts.
 const PARSE_BASE_URL = "http://demo.invalid/api/";
 
-const EMPTY_THRESHOLD_COUNTS = { safe: 0, warning: 0, danger: 0 };
-
 const routes: Array<Route> = [];
 
 function route(method: HttpMethod, pattern: string, handler: Handler) {
@@ -52,12 +55,7 @@ route("DELETE", "notes/:userId", ({ body }) => ({ note: "", time: body }));
 
 // UserController
 route("GET", "users", getAllUsersAction);
-route("GET", "users/:id/subordinates/threshold-summary", () => ({
-	noise: EMPTY_THRESHOLD_COUNTS,
-	dust: EMPTY_THRESHOLD_COUNTS,
-	vibration: EMPTY_THRESHOLD_COUNTS,
-	total: EMPTY_THRESHOLD_COUNTS,
-}));
+route("GET", "users/:id/subordinates/threshold-summary", getSubordinatesThresholdStatusAction);
 route("GET", "users/:id/subordinates", getSubordinatesAction);
 route("GET", "users/:id", getUserByIdAction);
 route("POST", "users", () => DEFAULT_USER);
