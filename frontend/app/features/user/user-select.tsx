@@ -115,16 +115,20 @@ export function UserSelect({
 				<Button
 					type="button"
 					title={t(($) => $.foremanDashboard.overview.clearUserSelection)}
+					aria-label={t(($) => $.foremanDashboard.overview.clearUserSelection)}
 					variant="outline"
 					onClick={() => {
 						onValueChange(null);
 						setSearchValue("");
 					}}
 					disabled={disabled}
-					className="shrink-0 rounded-r-xl px-2 lg:px-3"
+					className="shrink-0 rounded-r-xl px-2 xl:px-3"
 				>
 					<XIcon className="size-4" aria-hidden="true" />
-					<span className="text-xs lg:text-sm">{t(($) => $.foremanDashboard.overview.showAllUsers)}</span>
+					{/* Icon only below xl to keep the controls on one row */}
+					<span className="hidden text-sm xl:inline">
+						{t(($) => $.foremanDashboard.overview.showAllUsers)}
+					</span>
 				</Button>
 			)}
 		</div>

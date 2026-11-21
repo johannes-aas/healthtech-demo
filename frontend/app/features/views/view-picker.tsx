@@ -36,7 +36,7 @@ export function ViewPicker({ className, allowedViews }: ViewPickerProps) {
 					className="px-2 first:rounded-l-xl! last:rounded-r-xl! lg:px-3"
 				>
 					<DayViewIcon className="size-4" />
-					<p className="text-xs lg:text-sm">{t(($) => $.views.day)}</p>
+					<p className="text-sm">{t(($) => $.views.day)}</p>
 				</ToggleGroupItem>
 			)}
 
@@ -47,7 +47,7 @@ export function ViewPicker({ className, allowedViews }: ViewPickerProps) {
 					className="px-2 first:rounded-l-xl! last:rounded-r-xl! lg:px-3"
 				>
 					<WeekViewIcon className="size-4" />
-					<p className="text-xs lg:text-sm">{t(($) => $.views.week)}</p>
+					<p className="text-sm">{t(($) => $.views.week)}</p>
 				</ToggleGroupItem>
 			)}
 
@@ -58,7 +58,7 @@ export function ViewPicker({ className, allowedViews }: ViewPickerProps) {
 					className="px-2 first:rounded-l-xl! last:rounded-r-xl! lg:px-3"
 				>
 					<MonthViewIcon className="size-4" />
-					<p className="text-xs lg:text-sm">{t(($) => $.views.month)}</p>
+					<p className="text-sm">{t(($) => $.views.month)}</p>
 				</ToggleGroupItem>
 			)}
 		</ToggleGroup>

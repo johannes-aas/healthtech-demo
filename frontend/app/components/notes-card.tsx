@@ -155,7 +155,7 @@ export const NotesCard = ({ forceInteractiveMode = false }: NotesCardProps) => {
 					<Textarea
 						placeholder={t(($) => $.notes.interactive.placeholder)}
 						value={noteValue}
-						className="-mx-2 -my-1 min-h-17 w-[calc(100%+var(--spacing)*4)] rounded-t-none border-none bg-transparent px-2 py-1 text-foreground text-sm dark:bg-transparent"
+						className="-mx-2 -my-1 min-h-28 w-[calc(100%+var(--spacing)*4)] rounded-t-none border-none bg-transparent px-2 py-1 text-foreground text-sm dark:bg-transparent"
 						onChange={(e) => setNoteValue(e.target.value)}
 						onBlur={handleBlur}
 					/>

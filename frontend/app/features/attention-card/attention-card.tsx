@@ -149,7 +149,7 @@ export const AttentionCard = ({
 				{actionCardHeader}
 
 				<CardContent className="gap-2">
-					<div className="grid items-stretch gap-4 md:grid-cols-2 lg:col-span-3 lg:grid-cols-3">
+					<div className="grid @sm:grid-cols-3 items-stretch gap-4">
 						{!exposure && (
 							<>
 								<StatCard

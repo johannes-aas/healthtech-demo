@@ -87,7 +87,7 @@ export function ExposureSummary({ exposureType }: ExposureSummaryProps) {
 	}
 
 	return (
-		<div className="grid grid-cols-3 gap-3">
+		<div className="grid @sm:grid-cols-3 grid-cols-1 gap-3">
 			<SummaryStatCard
 				label={t(($) => $.exposureSummary.aggregated.safe)}
 				dangerLevel="safe"
@@ -166,7 +166,7 @@ function formatMinutesAsDuration(totalMinutes: number, locale: Locale) {
 
 function SummaryCardSkeleton() {
 	return (
-		<div className="grid grid-cols-3 gap-3">
+		<div className="grid @sm:grid-cols-3 grid-cols-1 gap-3">
 			<Skeleton className="h-15 w-full rounded-xl" />
 			<Skeleton className="h-15 w-full rounded-xl" />
 			<Skeleton className="h-15 w-full rounded-xl" />

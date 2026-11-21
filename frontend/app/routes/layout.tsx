@@ -195,10 +195,10 @@ export default function Layout() {
 		<SidebarProvider defaultOpen={false}>
 			<SidebarInset>
 				<div className="mx-auto flex w-full max-w-[90rem] flex-1 flex-col">
-					<header className="sticky top-0 z-40 mx-5 flex items-center justify-between bg-background/95 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+					<header className="sticky top-0 z-40 mx-4 flex items-center justify-between gap-2 bg-background/95 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:mx-5">
 						{desktopHeader}
 
-						<div className="flex flex-row items-center gap-4">
+						<div className="flex shrink-0 flex-row items-center gap-1 sm:gap-4">
 							<Button
 								variant="ghost"
 								size="icon"
@@ -223,7 +223,7 @@ export default function Layout() {
 						title={t(($) => $.common.notifications)}
 					/>
 
-					<main className="m-5 flex flex-1 flex-col">
+					<main className="m-4 flex flex-1 flex-col sm:m-5">
 						<Outlet />
 					</main>
 				</div>
@@ -262,11 +262,15 @@ function UserDropdown({
 		<>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild={true}>
-					<Button variant="ghost" className="h-11 max-w-[14rem] cursor-pointer gap-2 rounded-full pr-3 pl-1">
+					<Button
+						variant="ghost"
+						className="h-11 max-w-[14rem] cursor-pointer gap-2 rounded-full px-1 md:pr-3"
+					>
 						<div className="flex size-9 items-center justify-center rounded-full bg-primary">
 							<UserIcon className="size-5 text-primary-foreground" />
 						</div>
-						<div className="min-w-0 grow text-left leading-tight">
+						{/* Avatar only on small screens, where the header has no room for the name */}
+						<div className="hidden min-w-0 grow text-left leading-tight md:block">
 							<p className="truncate font-medium">{shorthandName(user.name)}</p>
 							<p className="truncate text-foreground/60 text-xs">{user.location.site}</p>
 						</div>
@@ -464,7 +468,7 @@ function NavTabs({ routes }: { routes: Array<NavRoute> }) {
 	}, [activeNavIndex]);
 
 	return (
-		<div className="relative mx-auto flex h-11 flex-row rounded-full bg-background px-2">
+		<div className="relative mx-auto flex h-11 flex-row rounded-full bg-background px-1 sm:px-2">
 			<div
 				className="absolute top-0 bottom-0 z-10 flex overflow-hidden rounded-full py-1 transition-all duration-300"
 				style={{ left: pillLeft, width: pillWidth }}
@@ -474,7 +478,7 @@ function NavTabs({ routes }: { routes: Array<NavRoute> }) {
 
 			{routes.map((route, i) => {
 				const className = cn(
-					"z-20 flex cursor-pointer select-none items-center rounded-full px-5 py-2",
+					"z-20 flex cursor-pointer select-none items-center whitespace-nowrap rounded-full px-3 py-2 sm:px-5",
 					"text-center font-medium text-muted-foreground text-sm hover:text-foreground",
 					i === activeNavIndex && "text-primary-foreground hover:text-primary-foreground",
 				);
@@ -495,7 +499,7 @@ function NavTabs({ routes }: { routes: Array<NavRoute> }) {
 						prefetch="intent"
 					>
 						<span className="inline-flex items-center gap-2">
-							{route.icon && <route.icon className="size-4" />}
+							{route.icon && <route.icon className="hidden size-4 min-[400px]:block" />}
 							{route.label}
 						</span>
 					</NavLink>

@@ -1,9 +1,16 @@
-import { DatePicker } from "@/components/date-picker.tsx";
+import {
+	dashboardCalendarAsideClassName,
+	dashboardGridClassName,
+	dashboardHeaderClassName,
+	dashboardSideAsideClassName,
+	mainPanelClassName,
+	mainPanelSeparatorClassName,
+} from "@/components/dashboard-layout.ts";
+import { DatePickerCard } from "@/components/date-picker-card.tsx";
 import { ExposureIcon } from "@/components/exposure-icon.tsx";
 import { NotesCard } from "@/components/notes-card.tsx";
 import { SelectionSubtitle } from "@/components/selection-subtitle.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
-import { DateNavigation } from "@/features/date-picker/date-navigation.tsx";
 import { useDate } from "@/features/date-picker/use-date.ts";
 import { ExposureToggle } from "@/features/exposure-picker/exposure-toggle.tsx";
 import { LimitExplanation } from "@/features/sidebar/limit-explanation.tsx";
@@ -12,7 +19,6 @@ import { useView } from "@/features/views/use-view.ts";
 import { ViewPicker } from "@/features/views/view-picker.tsx";
 import { useCurrentSearchParams } from "@/hooks/use-current-search-params.ts";
 import { toExposure } from "@/lib/exposures.ts";
-import { Card, CardLabelHeader } from "@/ui/card.tsx";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate } from "react-router";
 
@@ -28,17 +34,13 @@ export default function ExposureLayout() {
 	const exposure = toExposure(pathname.split("/").at(-1) ?? "");
 
 	return (
-		// Fills the viewport height and cancels the layout's bottom margin so the main panel reaches the bottom edge
 		<div
-			className="-mb-5 grid w-full flex-1 gap-6"
-			style={{
-				// 73 comes from w-65 on DatePicker's Calendar + p-4 on its outer div (so 8 spacings for both sides)
-				gridTemplateColumns: "calc(var(--spacing) * 73) minmax(0, 3fr) minmax(calc(var(--spacing) * 50), 1fr)",
-				gridTemplateRows: "auto 1fr",
-			}}
+			className={dashboardGridClassName(
+				"xl:grid-cols-[calc(var(--spacing)*73)_minmax(0,3fr)_minmax(calc(var(--spacing)*50),1fr)]",
+			)}
 		>
-			<header className="col-span-3 row-start-1 flex min-w-0 flex-wrap items-center gap-x-6 gap-y-3">
-				<ViewPicker className="w-73" />
+			<header className={dashboardHeaderClassName}>
+				<ViewPicker className="w-full md:w-auto xl:w-73" />
 
 				<ExposureToggle
 					value={exposure}
@@ -51,18 +53,11 @@ export default function ExposureLayout() {
 				/>
 			</header>
 
-			<aside className="col-start-1 row-start-2 flex flex-col gap-4">
-				<Card muted={true} variant="labeled">
-					<CardLabelHeader className="px-2 py-1.5">
-						<DateNavigation className="w-full" />
-					</CardLabelHeader>
-					<div className="p-4">
-						<DatePicker mode={view} showWeekNumber={true} date={date} onDateChange={setDate} />
-					</div>
-				</Card>
+			<aside className={dashboardCalendarAsideClassName}>
+				<DatePickerCard mode={view} showWeekNumber={true} date={date} onDateChange={setDate} />
 			</aside>
 
-			<section className="col-start-2 row-start-2 flex min-w-0 flex-col gap-4 rounded-t-2xl border border-border border-b-0 bg-surface p-6 dark:border-border/40">
+			<section className={mainPanelClassName}>
 				<div className="flex min-w-0 flex-col gap-3">
 					<div className="flex min-w-0 items-center gap-2 md:gap-3">
 						<ExposureIcon type={exposure ?? "all"} size="lg" className="shrink-0 border" />
@@ -77,8 +72,7 @@ export default function ExposureLayout() {
 
 					<SelectionSubtitle />
 
-					{/* Negative inline margin stretches the divider across the section's padding to its borders */}
-					<Separator className="-mx-6 mt-1 data-[orientation=horizontal]:w-auto dark:bg-border/40" />
+					<Separator className={mainPanelSeparatorClassName} />
 				</div>
 
 				<article className="flex min-w-0 flex-col gap-4">
@@ -87,7 +81,7 @@ export default function ExposureLayout() {
 				</article>
 			</section>
 
-			<aside className="col-start-3 row-start-2 flex flex-col gap-4">
+			<aside className={dashboardSideAsideClassName}>
 				<NotesCard />
 				<LimitExplanation />
 			</aside>

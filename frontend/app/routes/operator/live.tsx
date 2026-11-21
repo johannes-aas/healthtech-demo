@@ -15,7 +15,7 @@ import type { ExposureDto, ExposureTypeField } from "@/lib/dto/exposure.ts";
 import { buildExposureQuery } from "@/lib/exposure-query-utils.ts";
 import type { ExposureUnit } from "@/lib/exposures.ts";
 import { getThreshold } from "@/lib/thresholds.ts";
-import { computeYAxisRange, DUST_Y_AXIS_STEP } from "@/lib/utils.ts";
+import { cn, computeYAxisRange, DUST_Y_AXIS_STEP } from "@/lib/utils.ts";
 import type { TZDate } from "@date-fns/tz";
 import { useQueries } from "@tanstack/react-query";
 import { addMinutes, isWithinInterval, startOfDay, startOfMinute } from "date-fns";
@@ -138,18 +138,22 @@ export default function OperatorLiveView() {
 
 	return (
 		<div
-			className="flex w-full flex-col gap-4 md:grid"
-			style={{
-				gridTemplateColumns: "minmax(calc(var(--spacing) * 40), 1fr) minmax(0, 3fr) calc(var(--spacing) * 73)",
-			}}
+			className={cn(
+				"flex w-full flex-col gap-4",
+				// md to xl: the time range with the side cards under it on the left, charts on the right
+				"md:grid md:grid-cols-[calc(var(--spacing)*73)_minmax(0,1fr)] md:grid-rows-[auto_1fr]",
+				// xl and up: side cards, charts and time range side by side
+				"xl:grid-cols-[minmax(calc(var(--spacing)*40),1fr)_minmax(0,3fr)_calc(var(--spacing)*73)] xl:grid-rows-none",
+			)}
 		>
-			<aside className="flex flex-col gap-4 md:col-start-1">
+			{/* On phones the side cards go under the charts */}
+			<aside className="order-last flex flex-col gap-4 md:order-none md:col-start-1 md:row-start-2 xl:row-start-1">
 				<SecurityRegulationsCard />
 				<NotesCard />
 				<LimitExplanation />
 			</aside>
 
-			<div className="flex min-w-0 flex-col gap-4 md:col-start-2">
+			<div className="flex min-w-0 flex-col gap-4 md:col-start-2 md:row-span-2 md:row-start-1 xl:row-span-1">
 				<Card>
 					<CardHeader>
 						<CardTitle>{t(($) => $.exposures.dust)}</CardTitle>
@@ -228,7 +232,8 @@ export default function OperatorLiveView() {
 				</Card>
 			</div>
 
-			<aside className="md:col-start-3">
+			{/* The time range controls the charts, so it comes first when the columns stack */}
+			<aside className="order-first md:order-none md:col-start-1 md:row-start-1 xl:col-start-3">
 				<Card muted={true} className="flex flex-col gap-4">
 					<div className="flex w-full flex-row justify-between">
 						<p className="flex items-center gap-2 text-sm">
@@ -327,37 +332,40 @@ const LiveExposureCard = ({
 	const latestDangerLevel = latestData?.dangerLevel;
 
 	return (
-		<div className="flex w-full gap-4">
-			<ExposureSlider
-				label={exposureLabel}
-				exposure={exposure}
-				field={exposureField}
-				value={latestValue}
-				dangerLevel={latestDangerLevel}
-				unit={chartUnit}
-				className="w-48"
-			/>
-			<div className="w-128 flex-1 self-stretch">
-				<BaseExposureLineChartCard
-					minTime={minTime}
-					maxTime={maxTime}
-					chartData={data}
-					unit={chartUnit}
-					maxY={maxY}
-					minY={minY}
-					lineType={lineType}
+		// Slider beside the chart when the card is wide enough, stacked above it otherwise
+		<div className="@container w-full">
+			<div className="flex @md:flex-row flex-col @md:gap-4">
+				<ExposureSlider
+					label={exposureLabel}
 					exposure={exposure}
-					variant="compact"
-					className={chartClassName}
-					contentClassName="p-0"
-					chartContainerClassName="!aspect-auto"
-					showLegend={showLegend}
-					xAxisMode="windowed"
-					dustField={exposureField}
-				>
-					<ThresholdLine y={threshold.danger} dangerLevel="danger" />
-					<ThresholdLine y={threshold.warning} dangerLevel="warning" />
-				</BaseExposureLineChartCard>
+					field={exposureField}
+					value={latestValue}
+					dangerLevel={latestDangerLevel}
+					unit={chartUnit}
+					className="@md:w-48"
+				/>
+				<div className="@md:w-128 w-full min-w-0 @md:flex-1 self-stretch">
+					<BaseExposureLineChartCard
+						minTime={minTime}
+						maxTime={maxTime}
+						chartData={data}
+						unit={chartUnit}
+						maxY={maxY}
+						minY={minY}
+						lineType={lineType}
+						exposure={exposure}
+						variant="compact"
+						className={chartClassName}
+						contentClassName="p-0"
+						chartContainerClassName="!aspect-auto"
+						showLegend={showLegend}
+						xAxisMode="windowed"
+						dustField={exposureField}
+					>
+						<ThresholdLine y={threshold.danger} dangerLevel="danger" />
+						<ThresholdLine y={threshold.warning} dangerLevel="warning" />
+					</BaseExposureLineChartCard>
+				</div>
 			</div>
 		</div>
 	);
