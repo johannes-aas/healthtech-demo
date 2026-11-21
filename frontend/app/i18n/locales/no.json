@@ -77,8 +77,7 @@
     "statistics": "Statistikk",
     "export": "Eksporter oversikt som PDF",
     "theme": "Fargetema",
-    "language": "Språk",
-    "map": "Kart"
+    "language": "Språk"
   },
   "live": {
     "timeRange": {
@@ -191,8 +190,7 @@
       },
       "membersCount": "{{count}} operatør i teamet",
       "membersCount_one": "{{count}} operatør i teamet",
-      "membersCount_other": "{{count}} operatører i teamet",
-      "mapTitle": "Lokasjonskart"
+      "membersCount_other": "{{count}} operatører i teamet"
     },
     "overview": {
       "title": {
@@ -235,18 +233,6 @@
     "userStatusChart": {
       "xAxisLabel": "% av faregrense",
       "noData": "Ingen eksponeringsdata tilgjengelig for operatører"
-    },
-    "siteMap": {
-      "title": "Områdekart",
-      "noOperators": "Ingen operatører i bygg",
-      "viewUser": "Se {{name}}",
-      "viewUserAria": "Se bruker {{name}}",
-      "viewExposureData": "Se {{exposure}} data for {{name}}",
-      "operatorExposureStatus": {
-        "danger": "Over grenseverdi for {{exposure}}",
-        "warning": "Over tiltaksverdi for {{exposure}}",
-        "safe": "Innenfor trygge grenseverdier for {{exposure}}"
-      }
     }
   },
   "user": {

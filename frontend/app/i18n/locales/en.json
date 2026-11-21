@@ -80,8 +80,7 @@
     "statistics": "Statistics",
     "export": "Export overview as PDF",
     "theme": "Theme",
-    "language": "Language",
-    "map": "Map"
+    "language": "Language"
   },
   "live": {
     "timeRange": {
@@ -194,8 +193,7 @@
       },
       "membersCount": "{{count}} operator in team",
       "membersCount_one": "{{count}} operator in team",
-      "membersCount_other": "{{count}} operators in team",
-      "mapTitle": "Location map"
+      "membersCount_other": "{{count}} operators in team"
     },
     "overview": {
       "title": {
@@ -238,18 +236,6 @@
     "userStatusChart": {
       "xAxisLabel": "% of exposure limit",
       "noData": "No exposure data available for any operators"
-    },
-    "siteMap": {
-      "title": "Site map",
-      "noOperators": "No operators in hall",
-      "viewUser": "View {{name}}",
-      "viewUserAria": "View user {{name}}",
-      "viewExposureData": "View {{exposure}} data for {{name}}",
-      "operatorExposureStatus": {
-        "danger": "Above limit value for {{exposure}}",
-        "warning": "Above action value for {{exposure}}",
-        "safe": "Within safe limit for {{exposure}}"
-      }
     }
   },
   "user": {

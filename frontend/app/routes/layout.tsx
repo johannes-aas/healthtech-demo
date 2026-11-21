@@ -30,7 +30,6 @@ import { IS_DEMO_MODE } from "@/lib/demo/storage.ts";
 import { type User, UserRoleSchema } from "@/lib/dto/user.ts";
 import { cn, shorthandName, userRoleToString } from "@/lib/utils.ts";
 import { useQuery } from "@tanstack/react-query";
-import "leaflet/dist/leaflet.css";
 import {
 	Bell,
 	HatGlassesIcon,
@@ -97,10 +96,6 @@ function getLinks(t: TranslateFn, role: User["role"] | null): Array<{ to: To; la
 				{
 					to: href("/foreman"),
 					label: t(($) => $.layout.home),
-				},
-				{
-					to: href("/foreman/map"),
-					label: t(($) => $.layout.map),
 				},
 				{
 					to: href("/foreman/team"),
