@@ -46,6 +46,7 @@
     "label": "Visning",
     "day": "Dag",
     "week": "Uke",
+    "weekShort": "U",
     "month": "Måned",
     "selectionText": "Du blir vist en {{view}}.",
     "dateSelectionSingle": "Du har valgt {{date}}.",
@@ -77,8 +78,7 @@
     "statistics": "Statistikk",
     "export": "Eksporter oversikt som PDF",
     "theme": "Fargetema",
-    "language": "Språk",
-    "map": "Kart"
+    "language": "Språk"
   },
   "live": {
     "timeRange": {
@@ -191,8 +191,7 @@
       },
       "membersCount": "{{count}} operatør i teamet",
       "membersCount_one": "{{count}} operatør i teamet",
-      "membersCount_other": "{{count}} operatører i teamet",
-      "mapTitle": "Lokasjonskart"
+      "membersCount_other": "{{count}} operatører i teamet"
     },
     "overview": {
       "title": {
@@ -221,13 +220,16 @@
       },
       "selectUserPlaceholder": "Velg et teammedlem",
       "clearUserSelection": "Fjern brukervalg",
-      "clearExposureFilter": "Fjern eksponeringsfilter"
+      "clearExposureFilter": "Fjern eksponeringsfilter",
+      "showAllExposures": "Vis alle",
+      "showAllUsers": "Vis alle"
     },
     "actionCard": {
-      "safe": "Teamstatus: Innenfor eksponeringsgrenser",
-      "warning": "Teamstatus: Oppmerksomhet kan være nødvendig",
+      "teamStatus": "Teamstatus:",
+      "safe": "Innenfor eksponeringsgrenser",
+      "warning": "Tiltak bør vurderes",
       "warningDescription": "En eller flere operatører er over tiltaksverdien. Overvåking eller forebyggende tiltak kan være nødvendig.",
-      "danger": "Teamstatus: Umiddelbar handling kreves",
+      "danger": "Umiddelbar handling kreves",
       "dangerDescription": "En eller flere operatører er over grenseverdien. Umiddelbar oppfølging i henhold til prosedyre kreves.",
       "day": "Dag",
       "week": "Uke"
@@ -235,18 +237,6 @@
     "userStatusChart": {
       "xAxisLabel": "% av faregrense",
       "noData": "Ingen eksponeringsdata tilgjengelig for operatører"
-    },
-    "siteMap": {
-      "title": "Områdekart",
-      "noOperators": "Ingen operatører i bygg",
-      "viewUser": "Se {{name}}",
-      "viewUserAria": "Se bruker {{name}}",
-      "viewExposureData": "Se {{exposure}} data for {{name}}",
-      "operatorExposureStatus": {
-        "danger": "Over grenseverdi for {{exposure}}",
-        "warning": "Over tiltaksverdi for {{exposure}}",
-        "safe": "Innenfor trygge grenseverdier for {{exposure}}"
-      }
     }
   },
   "user": {
@@ -257,10 +247,7 @@
     "searchPlaceholder": "Søk etter brukere..."
   },
   "demo": {
-    "currentRole": "Nåværende rolle:",
-    "navigate": {
-      "toRegister": "Gå til registreringssiden"
-    }
+    "currentRole": "Nåværende rolle:"
   },
   "select": {
     "all": "Velg alle",
@@ -273,23 +260,10 @@
     },
     "subtitle": {
       "allExposureTypes": "Alle eksponeringstyper",
-      "viewDay": "Dag",
-      "viewWeek": "Uke {{week}}",
-      "viewMonth": "Måned",
-      "dateDay": "{{date}}",
-      "dateRange": "{{startDate}} - {{endDate}}"
+      "today": "I dag, {{date}}",
+      "yesterday": "I går, {{date}}",
+      "week": "Uke {{week}} · {{range}}"
     }
-  },
-  "register": {
-    "title": "Registrer til HealthTech",
-    "name": "Fullt navn",
-    "email": "E-postaddresse",
-    "password": "Passord",
-    "confirmPassword": "Bekreft passord",
-    "privacyConsent": "Jeg samtykker til å dele mine data med mine veiledere av hensyn til helse og sikkerhet.",
-    "createAccount": "Opprett konto",
-    "haveAccount": "Har du allerede en konto? ",
-    "login": "Logg inn"
   },
   "securityRegulationsCard": {
     "title": "Gjeldene sikkerhetsreguleringer",
@@ -308,13 +282,6 @@
     "today": "I dag",
     "previous": "Forrige",
     "next": "Neste"
-  },
-  "exposureTrendLineChartCard": {
-    "title": {
-      "day": "Daglig eksponeringstrend",
-      "week": "Ukentlig eksponeringstrend",
-      "month": "Månedlig eksponeringstrend"
-    }
   },
   "exposureSlider": {
     "title": "Gjennomsnittlig eksponering for {{view}}"

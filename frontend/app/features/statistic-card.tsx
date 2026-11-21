@@ -46,7 +46,7 @@ export function ExposureStatisticsSection({
 	const maxPointCaption = maxTime ? t(($) => $.measurement.recordedAt, { time: formatTime(maxTime) }) : undefined;
 
 	return (
-		<div className="grid gap-3 md:grid-cols-3">
+		<div className="grid @lg:grid-cols-3 gap-3">
 			{averageValue !== null && (
 				<StatisticCard
 					label={t(($) => $.measurement.average)}
@@ -98,7 +98,7 @@ export function ExposureGraphEmptyState({ date, locale }: { date: Date; locale: 
 
 function ExposureStatisticsSkeleton() {
 	return (
-		<div className="grid gap-3 md:grid-cols-3">
+		<div className="grid @lg:grid-cols-3 gap-3">
 			{["average", "maximum", "latest"].map((key) => (
 				<Card key={key} className="gap-2">
 					<Skeleton className="h-3 w-20" />

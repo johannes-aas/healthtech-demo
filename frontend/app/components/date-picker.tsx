@@ -5,7 +5,7 @@ import { Calendar } from "@/ui/calendar.tsx";
 import { TZDate } from "@date-fns/tz";
 import { addMonths, addWeeks, startOfMonth, startOfWeek, subMilliseconds } from "date-fns";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { DayPickerProps } from "react-day-picker";
+import { type DayPickerProps, getDefaultClassNames } from "react-day-picker";
 import { useTranslation } from "react-i18next";
 
 type DatePickerProps = Omit<
@@ -29,6 +29,7 @@ export function DatePicker({
 }: DatePickerProps) {
 	const formatDate = useFormatDate();
 	const { t, i18n } = useTranslation();
+	const defaultClassNames = getDefaultClassNames();
 
 	const [selectedDate, setSelectedDate] = useState<TZDate>(date);
 	const [month, setMonth] = useState<Date>(date);
@@ -124,13 +125,18 @@ export function DatePicker({
 			onSelect={handleDayClick}
 			modifiers={modifiers}
 			captionLayout="dropdown"
+			// Tighter than the Calendar defaults (`gap-4` under the caption, `mt-2` between weeks)
+			classNames={{
+				month: cn("flex w-full flex-col gap-2", defaultClassNames.month),
+				week: cn("mt-1 flex w-full", defaultClassNames.week),
+			}}
 			modifiersClassNames={{
 				today: "[&>button]:font-bold",
 				...modifiersClassNames,
 			}}
 			footer={
 				withFooter ? (
-					<p className="mt-2 text-wrap text-muted-foreground text-xs">{selectionRecap}</p>
+					<p className="mt-1.5 text-wrap text-center text-muted-foreground text-xs">{selectionRecap}</p>
 				) : undefined
 			}
 			{...calendarProps}

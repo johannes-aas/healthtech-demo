@@ -5,13 +5,11 @@ import { useDate } from "@/features/date-picker/use-date.ts";
 import { DayWidget } from "@/features/day-widget/day-widget.tsx";
 import { ExposureLineChartCardSkeleton } from "@/features/exposure-line-chart-card/base-exposure-line-chart-card.tsx";
 import { DustExposureLineChartCard } from "@/features/exposure-line-chart-card/dust-exposure-line-chart-card.tsx";
+import { DustUnitTabs } from "@/features/exposure-line-chart-card/dust-unit-tabs.tsx";
 import NoiseExposureLineChartCard from "@/features/exposure-line-chart-card/noise-exposure-line-chart-card.tsx";
 import VibrationExposureLineChartCard from "@/features/exposure-line-chart-card/vibration-exposure-line-chart-card.tsx";
-import { ExposureStatisticsSection } from "@/features/statistic-card.tsx";
+import { ExposureGraphEmptyState, ExposureStatisticsSection } from "@/features/statistic-card.tsx";
 import { getMaxPointByValue } from "@/features/statistic-card-utils.ts";
-import { DustTrendLineChartCard } from "@/features/trend-line-chart-card/dust-trend-line-chart-card.tsx";
-import { NoiseTrendLineChartCard } from "@/features/trend-line-chart-card/noise-trend-line-chart-card.tsx";
-import { VibrationTrendLineChartCard } from "@/features/trend-line-chart-card/vibration-trend-line-chart-card.tsx";
 import { useView } from "@/features/views/use-view.ts";
 import { WeekWidget } from "@/features/week-widget/week-widget.tsx";
 import { useFormatDate } from "@/hooks/use-format-date.ts";
@@ -226,20 +224,22 @@ function DustUserChart({ selectedUser }: { selectedUser: UserWithStatusDto }) {
 		view,
 	);
 
-	const showTrendLineChart = view === "month" || view === "week";
 	const showDustStatistics = view === "day";
 
 	return (
 		<div className="flex max-w-4xl flex-col gap-4">
-			<Tabs value={dustField} onValueChange={(value) => setDustField(value as DustField)}>
-				<TabsList>
-					{dustFields.map((field) => (
-						<TabsTrigger key={field} value={field}>
-							{t(($) => $.exposures.dustFields[field])}
-						</TabsTrigger>
-					))}
-				</TabsList>
-			</Tabs>
+			<div className="flex flex-wrap items-center justify-between gap-3">
+				<Tabs value={dustField} onValueChange={(value) => setDustField(value as DustField)}>
+					<TabsList>
+						{dustFields.map((field) => (
+							<TabsTrigger key={field} value={field}>
+								{t(($) => $.exposures.dustFields[field])}
+							</TabsTrigger>
+						))}
+					</TabsList>
+				</Tabs>
+				{view !== "week" && <DustUnitTabs />}
+			</div>
 
 			<ExposureChartCard
 				isLoading={dataResult.isLoading}
@@ -284,19 +284,19 @@ function DustUserChart({ selectedUser }: { selectedUser: UserWithStatusDto }) {
 				</CardHeader>
 				<CardContent className="flex flex-row flex-wrap">
 					<ExposureSlider
-						className="flex-1"
+						className="min-w-36 flex-1"
 						label={t(($) => $.exposures.dustFields.pm1_twa)}
 						value={avgPm1Twa}
 						exposure={exposure}
-						unitLabel="ug"
+						unit={dustUnit}
 						dangerLevel={getDangerLevel(avgPm1Twa, dustPm1TwaThreshold.warning, dustPm1TwaThreshold.danger)}
 					/>
 					<ExposureSlider
-						className="flex-1"
+						className="min-w-36 flex-1"
 						label={t(($) => $.exposures.dustFields.pm25_twa)}
 						value={avgPm25Twa}
 						exposure={exposure}
-						unitLabel="ug"
+						unit={dustUnit}
 						dangerLevel={getDangerLevel(
 							avgPm25Twa,
 							dustPm25TwaThreshold.warning,
@@ -304,19 +304,19 @@ function DustUserChart({ selectedUser }: { selectedUser: UserWithStatusDto }) {
 						)}
 					/>
 					<ExposureSlider
-						className="flex-1"
+						className="min-w-36 flex-1"
 						label={t(($) => $.exposures.dustFields.pm4_twa)}
 						value={avgPm4Twa}
 						exposure={exposure}
-						unitLabel="ug"
+						unit={dustUnit}
 						dangerLevel={getDangerLevel(avgPm4Twa, dustPm4TwaThreshold.warning, dustPm4TwaThreshold.danger)}
 					/>
 					<ExposureSlider
-						className="flex-1"
+						className="min-w-36 flex-1"
 						label={t(($) => $.exposures.dustFields.pm10_twa)}
 						value={avgPm10Twa}
 						exposure={exposure}
-						unitLabel="ug"
+						unit={dustUnit}
 						dangerLevel={getDangerLevel(
 							avgPm10Twa,
 							dustPm10TwaThreshold.warning,
@@ -325,8 +325,6 @@ function DustUserChart({ selectedUser }: { selectedUser: UserWithStatusDto }) {
 					/>
 				</CardContent>
 			</Card>
-
-			{showTrendLineChart && <DustTrendLineChartCard unit={dustUnit} userId={selectedUser.id} />}
 		</div>
 	);
 }
@@ -374,7 +372,6 @@ function VibrationUserChart({ selectedUser }: { selectedUser: UserWithStatusDto 
 		view,
 	);
 
-	const showTrendLineChart = view === "month" || view === "week";
 	const showVibrationStatistics = view === "day";
 
 	return (
@@ -411,8 +408,6 @@ function VibrationUserChart({ selectedUser }: { selectedUser: UserWithStatusDto 
 					formatTime={(time) => formatDate(time, "HH:mm")}
 				/>
 			)}
-
-			{showTrendLineChart && <VibrationTrendLineChartCard userId={selectedUser.id} />}
 		</div>
 	);
 }
@@ -482,7 +477,6 @@ function NoiseUserChart({ selectedUser }: { selectedUser: UserWithStatusDto }) {
 		view,
 	);
 
-	const showTrendLineChart = view === "month" || view === "week";
 	const showNoiseStatistics = view === "day";
 
 	return (
@@ -526,8 +520,6 @@ function NoiseUserChart({ selectedUser }: { selectedUser: UserWithStatusDto }) {
 					formatTime={(time) => formatDate(time, "HH:mm")}
 				/>
 			)}
-
-			{showTrendLineChart && <NoiseTrendLineChartCard userId={selectedUser.id} />}
 		</div>
 	);
 }
@@ -574,23 +566,10 @@ function ExposureChartCard({
 	}
 
 	if (!data || data.length === 0) {
-		return (
-			<Card className="flex w-full items-center">
-				<CardTitle>{formatChartDate(selectedDate, i18n.language)}</CardTitle>
-				<p>{t(($) => $.common.noData)}</p>
-			</Card>
-		);
+		return <ExposureGraphEmptyState date={selectedDate} locale={i18n.language} />;
 	}
 
 	return <div className="w-full max-w-4xl">{children}</div>;
-}
-
-function formatChartDate(selectedDate: TZDate, locale: string) {
-	return selectedDate.toLocaleDateString(locale, {
-		day: "numeric",
-		month: "long",
-		year: "numeric",
-	});
 }
 
 function getAvgValue(data: Array<ExposureDto>): number {

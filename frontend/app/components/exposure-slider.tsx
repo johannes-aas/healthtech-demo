@@ -2,8 +2,9 @@ import { ExposureIcon } from "@/components/exposure-icon.tsx";
 import type { Exposure } from "@/features/exposure-picker/exposures.ts";
 import { type DangerLevel, dangerlevelStyles } from "@/lib/danger-levels.ts";
 import type { ExposureTypeField } from "@/lib/dto/exposure.ts";
+import type { ExposureUnit } from "@/lib/exposures.ts";
 import { getThreshold } from "@/lib/thresholds.ts";
-import { cn, getEmoji } from "@/lib/utils.ts";
+import { cn, getEmoji, UG_TO_MG } from "@/lib/utils.ts";
 import { useTranslation } from "react-i18next";
 
 interface Props {
@@ -11,23 +12,26 @@ interface Props {
 	field?: ExposureTypeField | null;
 	value?: number;
 	dangerLevel?: DangerLevel;
-	unitLabel: string;
+	/** Display unit. Values are always passed in the base unit (µg/m³ for dust). */
+	unit: ExposureUnit;
 	label: string;
 	className?: string;
 }
 
-export function ExposureSlider({ exposure, field, value, dangerLevel, unitLabel: unit, label, className }: Props) {
-	const { i18n } = useTranslation();
+export function ExposureSlider({ exposure, field, value, dangerLevel, unit, label, className }: Props) {
+	const { t, i18n } = useTranslation();
 	const { danger } = getThreshold(exposure, field);
 	const sliderMax = danger * 1.5;
 	const percentage =
 		value === undefined ? 0 : Math.min(100, Math.max(0, sliderMax <= 0 ? 0 : (value / sliderMax) * 100));
 
 	const valueFormatter = new Intl.NumberFormat(i18n.language === "no" ? "nb-NO" : "en-US", {
-		minimumFractionDigits: 1,
-		maximumFractionDigits: 1,
+		minimumFractionDigits: unit === "mg" ? 3 : 1,
+		maximumFractionDigits: unit === "mg" ? 3 : 1,
 	});
-	const formattedValue = valueFormatter.format(value ?? 0);
+	const displayValue = unit === "mg" ? (value ?? 0) * UG_TO_MG : (value ?? 0);
+	const formattedValue = valueFormatter.format(displayValue);
+	const unitLabel = t(($) => $.exposures.units[unit]);
 
 	const Emoji = getEmoji(dangerLevel ?? null);
 	const color = dangerLevel === undefined ? undefined : dangerlevelStyles[dangerLevel].color;
@@ -62,7 +66,7 @@ export function ExposureSlider({ exposure, field, value, dangerLevel, unitLabel:
 
 			<p className="font-semibold text-2xl">
 				{formattedValue}
-				<span className="ml-1 font-medium text-muted-foreground text-sm">{unit}</span>
+				<span className="ml-1 font-medium text-muted-foreground text-sm">{unitLabel}</span>
 			</p>
 		</div>
 	);

@@ -10,7 +10,7 @@ import { getThreshold } from "@/lib/thresholds.ts";
 import { buildYAxisTicks, cn, DUST_Y_AXIS_STEP, formatExposureValue } from "@/lib/utils.ts";
 import { TZDate } from "@date-fns/tz";
 import { addMinutes, formatDistanceToNowStrict } from "date-fns";
-import { type PropsWithChildren, useId } from "react";
+import { type PropsWithChildren, useEffect, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Area, CartesianGrid, ComposedChart, Legend, Line, XAxis, type XAxisTickContentProps, YAxis } from "recharts";
 import type { CurveType } from "recharts/types/shape/Curve";
@@ -70,6 +70,8 @@ export function ExposureLineChart({
 	const { t, i18n } = useTranslation();
 	const id = useId();
 	const formatDate = useFormatDate();
+	const [chartElement, setChartElement] = useState<HTMLDivElement | null>(null);
+	const chartWidth = useElementWidth(chartElement);
 
 	const { warning, danger, peakDanger } = getThreshold(exposure, dustField);
 	const dangerThreshold = usePeakData && peakDanger ? peakDanger : danger;
@@ -86,7 +88,9 @@ export function ExposureLineChart({
 	const xMax = maxTime.getTime();
 
 	const rawTicks = buildTicks(xAxisMode, minTime, maxTime);
-	const ticks = limitTicks(rawTicks, 6);
+	// Fewer time labels on narrow charts so they don't overlap. Based on the chart's own width, not the viewport's,
+	// since the dashboard columns change how much room the chart gets.
+	const ticks = limitTicks(rawTicks, getMaxTicks(chartWidth));
 
 	const compact = variant === "compact";
 
@@ -98,8 +102,16 @@ export function ExposureLineChart({
 
 	return (
 		<ChartContainer
+			ref={setChartElement}
 			config={chartConfig}
-			className={cn("h-full w-full", chartContainerClassName, compact && "!aspect-auto")}
+			className={cn(
+				"h-full w-full",
+				// The 16:9 aspect ratio leaves almost no plot area on narrow charts, so give the full-size chart a
+				// minimum height there
+				!compact && chartWidth !== undefined && chartWidth < NARROW_CHART_WIDTH && "min-h-64",
+				chartContainerClassName,
+				compact && "!aspect-auto",
+			)}
 		>
 			<ComposedChart
 				accessibilityLayer={true}
@@ -355,6 +367,42 @@ function buildTicks(xAxisMode: XAxisMode, minTime: Date, maxTime: Date) {
 	return ticks;
 }
 
+/** Below this width (px) the chart counts as narrow and gets a minimum height. */
+const NARROW_CHART_WIDTH = 512;
+
+/** Roughly the horizontal room one time label needs, including the space around it. */
+const MIN_PX_PER_TICK = 70;
+
+/** Room taken up by the y-axis and its rotated unit label, which the time labels can't use. */
+const Y_AXIS_ROOM = 70;
+
+function getMaxTicks(chartWidth: number | undefined) {
+	if (chartWidth === undefined) {
+		return 6;
+	}
+
+	const plotWidth = chartWidth - Y_AXIS_ROOM;
+
+	return Math.min(6, Math.max(2, Math.floor(plotWidth / MIN_PX_PER_TICK)));
+}
+
+function useElementWidth(element: HTMLElement | null) {
+	const [width, setWidth] = useState<number>();
+
+	useEffect(() => {
+		if (!element) {
+			return;
+		}
+
+		const observer = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width));
+		observer.observe(element);
+
+		return () => observer.disconnect();
+	}, [element]);
+
+	return width;
+}
+
 function limitTicks(ticks: Array<number>, maxTicks: number) {
 	if (ticks.length <= maxTicks) {
 		return ticks;
@@ -367,8 +415,13 @@ function limitTicks(ticks: Array<number>, maxTicks: number) {
 		result.unshift(ticks[0]);
 	}
 
-	if (result[result.length - 1] !== ticks[ticks.length - 1]) {
-		result.push(ticks[ticks.length - 1]);
+	const lastTick = ticks[ticks.length - 1];
+	const lastKeptIndex = Math.floor((ticks.length - 1) / step) * step;
+
+	if (lastKeptIndex !== ticks.length - 1) {
+		// The end tick is closer than one step to the last kept tick, so appending it would make their labels collide.
+		// Replace that tick with the end tick instead.
+		result[result.length - 1] = lastTick;
 	}
 
 	return result;

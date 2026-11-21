@@ -2,6 +2,7 @@
 
 import { DangerLevelDots } from "@/components/danger-level-dots.tsx";
 import { Calendar } from "@/components/ui/calendar.tsx";
+import { Card } from "@/components/ui/card.tsx";
 import { getLocale, TIMEZONE } from "@/i18n/locale.ts";
 import { type DangerLevel, dangerlevelStyles } from "@/lib/danger-levels.ts";
 import { toTZDate } from "@/lib/date.ts";
@@ -23,7 +24,7 @@ type CalendarProps = {
 };
 
 export function CalendarWidget({ selectedDay, data }: CalendarProps) {
-	const { i18n } = useTranslation();
+	const { t, i18n } = useTranslation();
 	const { setDate } = useDate();
 	const { setView } = useView();
 
@@ -40,12 +41,14 @@ export function CalendarWidget({ selectedDay, data }: CalendarProps) {
 	}
 
 	return (
-		<div className="mr-auto w-full max-w-4xl">
+		<Card className="mr-auto w-full max-w-4xl">
 			<Calendar
 				locale={getLocale(i18n.language)}
 				month={selectedDay}
 				hideNavigation={true}
 				showWeekNumber={true}
+				showOutsideDays={false}
+				style={{ "--wk-label": `'${t(($) => $.views.week)}'` } as React.CSSProperties}
 				weekStartsOn={1}
 				onDayClick={(clickedDay) => handleDayClick(toTZDate(clickedDay))}
 				components={{
@@ -67,7 +70,7 @@ export function CalendarWidget({ selectedDay, data }: CalendarProps) {
 				buttonVariant="default"
 				mode="single"
 			/>
-		</div>
+		</Card>
 	);
 }
 

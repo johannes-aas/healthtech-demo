@@ -1,42 +1,49 @@
 import type { Exposure } from "@/features/exposure-picker/exposures.ts";
+import { type Bucket, BucketBuilder, VIEW_SOURCES } from "./buckets.ts";
 import {
-	DUST_CLEAN_SIZE_FACTOR,
-	DUST_CLEAN_STEL,
-	DUST_CLEAN_TWA,
-	DUST_DUSTY_DAY_MAX,
-	DUST_DUSTY_DAY_SHARE,
-	NOISE_LCPK_OFFSET,
-	NOISE_LOUD_DAY_DEVIATION,
-	NOISE_LOUD_DAY_LEVEL,
-	NOISE_LOUD_DAY_SHARE,
-	NOISE_PEAK_LAEQ,
-	NOISE_PEAK_LCPK_CAP,
-	NOISE_PEAK_LCPK_HIGH_RANGE,
-	NOISE_PEAK_LCPK_HIGH_SHARE,
-	NOISE_PEAK_LCPK_MAX,
-	NOISE_PEAK_SHARE,
-	NOISE_QUIET_LAEQ,
+	DUST_DAY_AVERAGE,
+	DUST_HOUR_FACTOR,
+	DUST_SAMPLE_FACTOR,
+	DUST_SIZE_FACTOR,
+	DUST_STEL_FACTOR,
+	NOISE_BACKGROUND_RANGE,
+	NOISE_BACKGROUND_SD,
+	NOISE_BURST_LEVEL,
+	NOISE_BURST_LEVEL_ABOVE_AVERAGE,
+	NOISE_BURST_MEAN_SAMPLES,
+	NOISE_BURST_SD,
+	NOISE_DAY_AVERAGE,
+	NOISE_IMPACT_LAEQ_INCREASE,
+	NOISE_IMPACT_LCPK,
+	NOISE_IMPACT_SHARE,
+	NOISE_LCPK_ABOVE_LAEQ,
+	NOISE_PEAK_LIMIT_DAY_SHARE,
+	NOISE_PEAK_LIMIT_LCPK,
+	NOISE_SAMPLE_SD,
 	SAMPLE_INTERVAL_MS,
+	SHIFT_END_UTC_HOUR,
+	SHIFT_START_UTC_HOUR,
+	VIBRATION_DAY_TOTAL,
 	VIBRATION_HOURLY_SHARE,
-	VIBRATION_OFF_SHIFT_HOURLY_SHARE,
 	VIBRATION_POINTS,
 	VIBRATION_SESSIONS_PER_DAY,
 } from "./calibration.ts";
-import { getConstantOffset, getUserProfile } from "./profiles.ts";
-import { hashString, lerp, sampleQuantile, samplePoisson, unitRandom } from "./random.ts";
+import { getUserProfile, type UserProfile } from "./profiles.ts";
+import { hashString, lerp, normal, samplePoisson, sampleQuantile, unitRandom } from "./random.ts";
 import type { DataDay } from "./time.ts";
-import { type Bucket, BucketBuilder, VIEW_SOURCES } from "./buckets.ts";
 
 /**
  * Generates the raw sensor rows (like the `NoiseData`, `DustData` and `VibrationData` tables) for one user and one day,
  * and returns them aggregated into minute buckets.
  *
- * Each user has their own random series (seeded by user ID), scaled with the user's `seed_user_profile` (see
- * `profiles.ts`). Day-level properties (loud day, dusty day) are seeded by user and date; per-sample values by user and
- * absolute sample slot, so the same timestamp always gets the same value.
+ * Each day first gets a target level per exposure (`calibration.ts`, shifted by the user's profile), then the samples
+ * are generated around it. Randomness is seeded by user, date and sample slot, and a day is always generated from the
+ * start of the shift, so the same timestamp always gets the same value (also while "today" is still growing).
  */
 
 const MINUTE_MS = 60_000;
+const HOUR_MS = 60 * MINUTE_MS;
+const SHIFT_MS = (SHIFT_END_UTC_HOUR - SHIFT_START_UTC_HOUR) * HOUR_MS;
 
 // Stream IDs, so different quantities of the same user/slot get independent random numbers
 const STREAM = {
@@ -44,87 +51,96 @@ const STREAM = {
 	noiseSample: 2,
 	dustDay: 3,
 	dustSample: 4,
-	vibrationMinute: 5,
-	vibrationJitter: 6,
+	vibrationDay: 5,
+	vibrationMinute: 6,
 } as const;
 
 function userSeed(userId: string, stream: number): number {
 	return hashString(`${userId}#${stream}`);
 }
 
-function generateNoise(userId: string, day: DataDay, builder: BucketBuilder) {
-	const profile = getUserProfile(userId).noise;
-	const offset = getConstantOffset("noise", profile);
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+/** Quiet background with work bursts of a few minutes, mixed so the day's average lands on the day's target. */
+function generateNoise(userId: string, profile: UserProfile, day: DataDay, builder: BucketBuilder) {
 	const daySeed = userSeed(userId, STREAM.noiseDay);
 	const sampleSeed = userSeed(userId, STREAM.noiseSample);
+	const dayUnit = (k: number) => unitRandom(daySeed, day.dayNumber, k);
 
-	const isLoudDay = unitRandom(daySeed, day.dayNumber, 0) < NOISE_LOUD_DAY_SHARE;
-	const loudLevel = sampleQuantile(NOISE_LOUD_DAY_LEVEL, unitRandom(daySeed, day.dayNumber, 1));
+	const dayAverage = sampleQuantile(NOISE_DAY_AVERAGE, dayUnit(0)) + profile.noiseOffsetDb;
+	const background = lerp(...NOISE_BACKGROUND_RANGE, dayUnit(1));
+	const burstLevel = Math.max(NOISE_BURST_LEVEL, dayAverage + NOISE_BURST_LEVEL_ABOVE_AVERAGE);
+	const burstShare = clamp((dayAverage - background) / (burstLevel - background), 0.03, 0.97);
+
+	// Two-state Markov chain whose long-run share of burst time is `burstShare`
+	const stopChance = 1 / NOISE_BURST_MEAN_SAMPLES;
+	const startChance = Math.min(1, (burstShare * stopChance) / (1 - burstShare));
+
+	const hasPeakLimitSample = dayUnit(2) < NOISE_PEAK_LIMIT_DAY_SHARE * profile.peakFactor;
+	const peakLimitIndex = Math.floor(dayUnit(3) * (SHIFT_MS / SAMPLE_INTERVAL_MS));
 
 	const row = new Float64Array(2); // [LCPK, LAEQ]
+	let inBurst = dayUnit(4) < burstShare;
+	let burstCenter = burstLevel + NOISE_BURST_SD * normal(dayUnit(5), dayUnit(6));
 
-	for (let time = day.start; time < day.end; time += SAMPLE_INTERVAL_MS) {
+	for (let time = day.start, index = 0; time < day.end; time += SAMPLE_INTERVAL_MS, index++) {
 		const slot = time / SAMPLE_INTERVAL_MS;
-		const lcpkOffset = sampleQuantile(NOISE_LCPK_OFFSET, unitRandom(sampleSeed, slot, 2));
-		const loudLaeq =
-			loudLevel + lerp(-NOISE_LOUD_DAY_DEVIATION, NOISE_LOUD_DAY_DEVIATION, unitRandom(sampleSeed, slot, 3));
+		const unit = (k: number) => unitRandom(sampleSeed, slot, k);
 
-		let lcpk: number;
-		let laeq: number;
+		if (index > 0) {
+			const wasInBurst = inBurst;
+			inBurst = wasInBurst ? unit(0) >= stopChance : unit(0) < startChance;
 
-		if (unitRandom(sampleSeed, slot, 1) < NOISE_PEAK_SHARE) {
-			const peak = sampleQuantile(NOISE_PEAK_LAEQ, unitRandom(sampleSeed, slot, 0));
-			const isHighPeak = unitRandom(sampleSeed, slot, 4) < NOISE_PEAK_LCPK_HIGH_SHARE;
-
-			lcpk = isHighPeak
-				? Math.min(NOISE_PEAK_LCPK_MAX, lerp(...NOISE_PEAK_LCPK_HIGH_RANGE, unitRandom(sampleSeed, slot, 5)))
-				: Math.min(NOISE_PEAK_LCPK_CAP, peak + lcpkOffset);
-			// Loud days have no LAEQ peaks in the sample data, only LCPK peaks
-			laeq = isLoudDay ? loudLaeq : peak;
-		} else {
-			const quiet = sampleQuantile(NOISE_QUIET_LAEQ, unitRandom(sampleSeed, slot, 0));
-			lcpk = quiet + lcpkOffset;
-			laeq = isLoudDay ? loudLaeq : quiet;
+			if (inBurst && !wasInBurst) {
+				burstCenter = burstLevel + NOISE_BURST_SD * normal(unit(1), unit(2));
+			}
 		}
 
-		row[0] = lcpk * profile.mult + offset;
-		row[1] = laeq * profile.mult + offset;
+		let laeq = inBurst
+			? burstCenter + NOISE_SAMPLE_SD * normal(unit(3), unit(4))
+			: background + NOISE_BACKGROUND_SD * normal(unit(3), unit(4));
+		let lcpk = laeq + lerp(...NOISE_LCPK_ABOVE_LAEQ, unit(5));
+
+		if (inBurst && unit(6) < NOISE_IMPACT_SHARE) {
+			laeq += lerp(...NOISE_IMPACT_LAEQ_INCREASE, unit(7));
+			lcpk = Math.max(lcpk, lerp(...NOISE_IMPACT_LCPK, unit(8)));
+		}
+
+		if (hasPeakLimitSample && index === peakLimitIndex) {
+			laeq += lerp(...NOISE_IMPACT_LAEQ_INCREASE, unit(7));
+			lcpk = lerp(...NOISE_PEAK_LIMIT_LCPK, unit(8));
+		}
+
+		row[0] = lcpk;
+		row[1] = laeq;
 		builder.addSample(time, row);
 	}
 }
 
 // Same order as VIEW_SOURCES.dust
-const DUST_COLUMNS = [
-	{ size: "pm1", kind: "stel" },
-	{ size: "pm25", kind: "stel" },
-	{ size: "pm4", kind: "stel" },
-	{ size: "pm10", kind: "stel" },
-	{ size: "pm1", kind: "twa" },
-	{ size: "pm25", kind: "twa" },
-	{ size: "pm4", kind: "twa" },
-	{ size: "pm10", kind: "twa" },
-] as const;
+const DUST_SIZES = ["pm1", "pm25", "pm4", "pm10"] as const;
 
-function generateDust(userId: string, day: DataDay, builder: BucketBuilder) {
-	const profile = getUserProfile(userId).dust;
-	const offset = getConstantOffset("dust", profile);
+/** PM1 TWA drifts around the day's target from hour to hour; other sizes and STEL are derived from it. */
+function generateDust(userId: string, profile: UserProfile, day: DataDay, builder: BucketBuilder) {
 	const sampleSeed = userSeed(userId, STREAM.dustSample);
+	const dayAverage =
+		sampleQuantile(DUST_DAY_AVERAGE, unitRandom(userSeed(userId, STREAM.dustDay), day.dayNumber, 0)) *
+		profile.dustFactor;
 
-	const isDustyDay = unitRandom(userSeed(userId, STREAM.dustDay), day.dayNumber, 0) < DUST_DUSTY_DAY_SHARE;
-
-	const row = new Float64Array(DUST_COLUMNS.length);
+	const row = new Float64Array(DUST_SIZES.length * 2); // [PM1S, PM25S, PM4S, PM10S, PM1T, PM25T, PM4T, PM10T]
 
 	for (let time = day.start; time < day.end; time += SAMPLE_INTERVAL_MS) {
 		const slot = time / SAMPLE_INTERVAL_MS;
+		const unit = (k: number) => unitRandom(sampleSeed, slot, k);
 
-		DUST_COLUMNS.forEach(({ size, kind }, index) => {
-			const unit = unitRandom(sampleSeed, slot, index);
-			const value = isDustyDay
-				? unit * DUST_DUSTY_DAY_MAX
-				: sampleQuantile(kind === "twa" ? DUST_CLEAN_TWA : DUST_CLEAN_STEL, unit) *
-					DUST_CLEAN_SIZE_FACTOR[size][kind];
+		const hourFactor = lerp(...DUST_HOUR_FACTOR, unitRandom(sampleSeed, Math.floor(time / HOUR_MS), 100));
+		const pm1 = dayAverage * hourFactor * lerp(...DUST_SAMPLE_FACTOR, unit(0));
 
-			row[index] = value * profile.mult + offset;
+		DUST_SIZES.forEach((size, index) => {
+			const [minFactor, maxFactor] = DUST_SIZE_FACTOR[size];
+			const twa = pm1 * lerp(minFactor, maxFactor, unit(1 + index));
+			row[DUST_SIZES.length + index] = twa;
+			row[index] = twa * lerp(...DUST_STEL_FACTOR, unit(5 + index));
 		});
 
 		builder.addSample(time, row);
@@ -132,45 +148,50 @@ function generateDust(userId: string, day: DataDay, builder: BucketBuilder) {
 }
 
 function getSessionsPerMinute(time: number): number {
-	const hourShare = VIBRATION_HOURLY_SHARE[new Date(time).getUTCHours()] ?? VIBRATION_OFF_SHIFT_HOURLY_SHARE;
+	const hourShare = VIBRATION_HOURLY_SHARE[new Date(time).getUTCHours()] ?? 0;
 	return (VIBRATION_SESSIONS_PER_DAY * hourShare) / 60;
 }
 
-/** Tool connections arrive as a Poisson process; each is one row with a `ConnectedOn` time and an exposure value. */
-function generateVibration(userId: string, day: DataDay, builder: BucketBuilder) {
-	const profile = getUserProfile(userId).vibration;
+/**
+ * Tool connections arrive as a Poisson process over the whole shift; each is one row with a `ConnectedOn` time and an
+ * exposure value, scaled so the full shift adds up to the day's target. Only connections before `day.end` are kept.
+ */
+function generateVibration(userId: string, profile: UserProfile, day: DataDay, builder: BucketBuilder) {
 	const minuteSeed = userSeed(userId, STREAM.vibrationMinute);
-	const jitterSeed = userSeed(userId, STREAM.vibrationJitter);
+	const dayTotal =
+		sampleQuantile(VIBRATION_DAY_TOTAL, unitRandom(userSeed(userId, STREAM.vibrationDay), day.dayNumber, 0)) *
+		profile.vibrationFactor;
 
-	const row = new Float64Array(1);
-	const firstMinute = Math.floor(day.start / MINUTE_MS) * MINUTE_MS;
+	const sessions: Array<{ time: number; points: number }> = [];
 
-	for (let minute = firstMinute; minute < day.end; minute += MINUTE_MS) {
+	for (let minute = day.start; minute < day.start + SHIFT_MS; minute += MINUTE_MS) {
 		const minuteIndex = minute / MINUTE_MS;
-		const sessions = samplePoisson(getSessionsPerMinute(minute), unitRandom(minuteSeed, minuteIndex, 0));
+		const count = samplePoisson(getSessionsPerMinute(minute), unitRandom(minuteSeed, minuteIndex, 0));
 
-		// Connection times within the minute, in order
-		const connectedOn = Array.from(
-			{ length: sessions },
-			(_, session) => minute + Math.floor(unitRandom(minuteSeed, minuteIndex, 1 + 2 * session) * MINUTE_MS),
-		).sort((a, b) => a - b);
+		for (let session = 0; session < count; session++) {
+			sessions.push({
+				time: minute + Math.floor(unitRandom(minuteSeed, minuteIndex, 1 + 2 * session) * MINUTE_MS),
+				points: sampleQuantile(VIBRATION_POINTS, unitRandom(minuteSeed, minuteIndex, 2 + 2 * session)),
+			});
+		}
+	}
 
-		connectedOn.forEach((time, session) => {
-			if (time < day.start || time >= day.end) {
-				return;
-			}
+	const rawTotal = sessions.reduce((sum, session) => sum + session.points, 0);
+	const scale = rawTotal > 0 ? dayTotal / rawTotal : 0;
+	const row = new Float64Array(1);
 
-			const points = sampleQuantile(VIBRATION_POINTS, unitRandom(minuteSeed, minuteIndex, 2 + 2 * session));
-			// `random()` per row in seed.sql
-			const jitter = unitRandom(jitterSeed, minuteIndex, session) * 2 * profile.jit - profile.jit;
-
-			row[0] = points * profile.mult + jitter;
-			builder.addSample(time, row);
-		});
+	for (const session of sessions.sort((a, b) => a.time - b.time)) {
+		if (session.time < day.end) {
+			row[0] = session.points * scale;
+			builder.addSample(session.time, row);
+		}
 	}
 }
 
-const GENERATORS: Record<Exposure, (userId: string, day: DataDay, builder: BucketBuilder) => void> = {
+const GENERATORS: Record<
+	Exposure,
+	(userId: string, profile: UserProfile, day: DataDay, builder: BucketBuilder) => void
+> = {
 	noise: generateNoise,
 	dust: generateDust,
 	vibration: generateVibration,
@@ -178,6 +199,11 @@ const GENERATORS: Record<Exposure, (userId: string, day: DataDay, builder: Bucke
 
 export function generateMinuteBuckets(exposure: Exposure, userId: string, day: DataDay): Array<Bucket> {
 	const builder = new BucketBuilder(MINUTE_MS, VIEW_SOURCES[exposure].length);
-	GENERATORS[exposure](userId, day, builder);
+	const profile = getUserProfile(userId);
+
+	if (profile) {
+		GENERATORS[exposure](userId, profile, day, builder);
+	}
+
 	return builder.buckets;
 }

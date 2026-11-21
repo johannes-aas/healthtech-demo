@@ -1,5 +1,3 @@
-import seedrandom from "seedrandom";
-
 /**
  * Deterministic randomness for the demo data.
  *
@@ -38,9 +36,9 @@ export function unitRandom(seed: number, slot: number, k = 0): number {
 	return hash / UINT32_RANGE;
 }
 
-/** Sequential generator, used where the seed SQL draws a fixed sequence of `random()` values (`setseed`). */
-export function createSequentialRandom(seed: string): () => number {
-	return seedrandom.alea(seed);
+/** Standard normal number from two uniform numbers in [0, 1) (Box-Muller). */
+export function normal(unit1: number, unit2: number): number {
+	return Math.sqrt(-2 * Math.log(1 - unit1)) * Math.cos(2 * Math.PI * unit2);
 }
 
 /** Piecewise-linear inverse CDF, given as `[cumulativeProbability, value]` pairs sorted by probability (0 to 1). */

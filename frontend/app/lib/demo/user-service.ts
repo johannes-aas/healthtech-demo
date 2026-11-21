@@ -1,5 +1,7 @@
 import type { DangerLevel } from "@/lib/danger-levels.ts";
 import type { UserRole } from "@/lib/dto/user.ts";
+import { internalServerError } from "./http.ts";
+import { hasSensorData } from "./profiles.ts";
 import {
 	type ManagerLink,
 	SEED_LOCATIONS,
@@ -8,8 +10,6 @@ import {
 	type SeedLocation,
 	type SeedUser,
 } from "./seed-data.ts";
-import { internalServerError } from "./http.ts";
-import { hasSensorData } from "./profiles.ts";
 import { readStored, writeStored } from "./storage.ts";
 import { getDataStart } from "./time.ts";
 

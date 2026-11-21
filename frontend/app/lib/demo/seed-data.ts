@@ -3,6 +3,9 @@ import type { UserRole } from "@/lib/dto/user.ts";
 /**
  * Static seed data, ported from `backend/src/Services/DatabaseSeeder.cs` and `SeedIds.cs`.
  * IDs must stay identical to the backend so that e.g. `DEFAULT_USER` and the IDs in `user-utils.ts` keep working.
+ *
+ * DEMO DEVIATION: the demo team is smaller than the seeded one (5 operators instead of 8); Birgir, Torleif and
+ * Bjørnulf are left out.
  */
 
 export type SeedLocation = {
@@ -38,9 +41,6 @@ const SEED_IDS = {
 const TROND_ID = "bbb3801e-f3ff-4b0c-9692-56e7505e9c31";
 const GJERTRUD_ID = "ccc3801e-f3ff-4b0c-9692-56e7505e9c32";
 const KLARA_ID = "ccc3801e-f3ff-4b0c-9692-56e7505e9c33";
-const BIRGIR_ID = "ddd3801e-f3ff-4b0c-9692-56e7505e9c31";
-const TORLEIF_ID = "eee3801e-f3ff-4b0c-9692-56e7505e9c31";
-const BJORNULF_ID = "fff3801e-f3ff-4b0c-9692-56e7505e9c31";
 
 export const SEED_LOCATIONS: Array<SeedLocation> = [
 	{
@@ -115,30 +115,6 @@ export const SEED_USERS: Array<SeedUser> = [
 		locationId: SEED_IDS.verdalLocation,
 		role: "operator",
 	},
-	{
-		id: BIRGIR_ID,
-		name: "Birgir Sigurdsson",
-		email: "birgir.sigurdsson@aker.com",
-		jobDescription: "Technician",
-		locationId: SEED_IDS.verdalLocation,
-		role: "operator",
-	},
-	{
-		id: TORLEIF_ID,
-		name: "Torleif Eriksen",
-		email: "torleif.eriksen@aker.com",
-		jobDescription: "Technician",
-		locationId: SEED_IDS.verdalLocation,
-		role: "operator",
-	},
-	{
-		id: BJORNULF_ID,
-		name: "Bjørnulf Knutsen",
-		email: "bjornul.knutsen@aker.com",
-		jobDescription: "Technician",
-		locationId: SEED_IDS.verdalLocation,
-		role: "operator",
-	},
 ];
 
 export type ManagerLink = {
@@ -152,14 +128,12 @@ export const SEED_MANAGER_LINKS: Array<ManagerLink> = [
 	TROND_ID,
 	GJERTRUD_ID,
 	KLARA_ID,
-	BIRGIR_ID,
-	TORLEIF_ID,
-	BJORNULF_ID,
 ].map((subordinateId) => ({ managerId: SEED_IDS.ola, subordinateId }));
 
-/**
- * Users that get sensor data, and the ones that were randomized with `seed_user_profile` in `backend/seed/seed.sql`.
- * Kari is deliberately not randomized there: she keeps the original (unscaled) values.
- */
-export const USERS_WITH_SENSOR_DATA: Array<string> = SEED_USERS.map((user) => user.id);
-export const UNSCALED_USER_ID: string = SEED_IDS.kari;
+export const SEED_USER_IDS = {
+	kari: SEED_IDS.kari,
+	per: SEED_IDS.per,
+	trond: TROND_ID,
+	gjertrud: GJERTRUD_ID,
+	klara: KLARA_ID,
+} as const;

@@ -3,9 +3,9 @@ import { CalendarWidget } from "@/features/calendar-widget/calendar-widget.tsx";
 import { useDate } from "@/features/date-picker/use-date.ts";
 import { ExposureLineChartCardSkeleton } from "@/features/exposure-line-chart-card/base-exposure-line-chart-card.tsx";
 import { DustExposureLineChartCard } from "@/features/exposure-line-chart-card/dust-exposure-line-chart-card.tsx";
+import { DustUnitTabs } from "@/features/exposure-line-chart-card/dust-unit-tabs.tsx";
 import { ExposureGraphEmptyState, ExposureStatisticsSection } from "@/features/statistic-card.tsx";
 import { getMaxPointByValue } from "@/features/statistic-card-utils.ts";
-import { DustTrendLineChartCard } from "@/features/trend-line-chart-card/dust-trend-line-chart-card.tsx";
 import { useUser } from "@/features/user/user-context.tsx";
 import { useView } from "@/features/views/use-view.ts";
 import { WeekWidget } from "@/features/week-widget/week-widget.tsx";
@@ -72,21 +72,23 @@ export default function Dust() {
 	const calendarData = mapExposureDataToTimeBucketStatuses(data ?? [], exposure, false);
 	const { minHour, maxHour } = getHourDomain(hourDomain, data?.map((d) => d.time) ?? [], view);
 
-	const showTrendLineChart = view === "month" || view === "week";
 	const showDustStatistics = view === "day";
 
 	return (
 		<div className="flex flex-col gap-8">
 			<div className="flex flex-1 flex-col gap-4">
-				<Tabs value={dustField} onValueChange={(value) => setDustField(value as DustField)}>
-					<TabsList>
-						{dustFields.map((field) => (
-							<TabsTrigger key={field} value={field}>
-								{t(($) => $.exposures.dustFields[field])}
-							</TabsTrigger>
-						))}
-					</TabsList>
-				</Tabs>
+				<div className="flex flex-wrap items-center justify-between gap-3">
+					<Tabs value={dustField} onValueChange={(value) => setDustField(value as DustField)}>
+						<TabsList>
+							{dustFields.map((field) => (
+								<TabsTrigger key={field} value={field}>
+									{t(($) => $.exposures.dustFields[field])}
+								</TabsTrigger>
+							))}
+						</TabsList>
+					</Tabs>
+					{view === "day" && <DustUnitTabs />}
+				</div>
 
 				{isLoading ? (
 					<ExposureLineChartCardSkeleton />
@@ -117,7 +119,6 @@ export default function Dust() {
 					/>
 				)}
 			</div>
-			{showTrendLineChart && <DustTrendLineChartCard unit={dustUnit} />}
 		</div>
 	);
 }

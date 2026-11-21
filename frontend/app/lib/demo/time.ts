@@ -8,17 +8,12 @@ import { SAMPLE_INTERVAL_MS, SHIFT_END_UTC_HOUR, SHIFT_START_UTC_HOUR } from "./
  *
  * - The data set starts at the beginning of the month two months ago (Norwegian time), so the two previous months are
  *   complete in the month view.
- * - Past days: weekdays only, during the normal shift (07:00-15:00 UTC, like the sample data).
- * - Today: always has data up to the current time, also on weekends and in the evening. Normally from the start of
- *   the shift; before the shift has been going for an hour (e.g. at night), from midnight instead, so "live" and
- *   "today" never look empty.
+ * - Weekdays only, during the normal shift (07:00-15:00 UTC, like the sample data).
+ * - Today is no different, except that the data stops at the current time while the shift is still going. So before the
+ *   shift, in the evening and at weekends, "live" and "today" have no (new) data, just like with real sensors.
  */
 
-const HOUR_MS = 60 * 60_000;
-const DAY_MS = 24 * HOUR_MS;
-
-/** Before the normal shift has been running for this long, today's data starts at midnight instead. */
-const TODAY_SHIFT_GRACE_MS = HOUR_MS;
+const DAY_MS = 24 * 60 * 60_000;
 
 export type DataDay = {
 	/** Calendar date in Norway, `yyyy-MM-dd`. */
@@ -29,7 +24,6 @@ export type DataDay = {
 	start: number;
 	/** Last sample time (exclusive, ms). */
 	end: number;
-	isToday: boolean;
 };
 
 export function getDataStart(nowMs: number = Date.now()): number {
@@ -40,10 +34,8 @@ function floorTo(value: number, interval: number): number {
 	return Math.floor(value / interval) * interval;
 }
 
-function toDataDay(day: TZDate, todayStartMs: number, nowMs: number): DataDay | null {
-	const isToday = day.getTime() === todayStartMs;
-
-	if (!isToday && isWeekend(day)) {
+function toDataDay(day: TZDate, nowMs: number): DataDay | null {
+	if (isWeekend(day)) {
 		return null;
 	}
 
@@ -56,15 +48,10 @@ function toDataDay(day: TZDate, todayStartMs: number, nowMs: number): DataDay | 
 	const shiftStart = Date.UTC(year, month, date, SHIFT_START_UTC_HOUR);
 	const shiftEnd = Date.UTC(year, month, date, SHIFT_END_UTC_HOUR);
 
-	if (!isToday) {
-		return { key, dayNumber, start: shiftStart, end: shiftEnd, isToday };
-	}
+	// While the shift is still going, stop at the sample slot that `now` falls in
+	const end = Math.min(shiftEnd, floorTo(nowMs, SAMPLE_INTERVAL_MS) + SAMPLE_INTERVAL_MS);
 
-	const start = nowMs >= shiftStart + TODAY_SHIFT_GRACE_MS ? shiftStart : day.getTime();
-	// Include the sample slot that `now` falls in
-	const end = floorTo(nowMs, SAMPLE_INTERVAL_MS) + SAMPLE_INTERVAL_MS;
-
-	return { key, dayNumber, start, end, isToday };
+	return { key, dayNumber, start: shiftStart, end };
 }
 
 /** Days with data that may have samples within `[fromMs, toMs]`. */
@@ -76,11 +63,10 @@ export function getDataDays(fromMs: number, toMs: number, nowMs: number): Array<
 		return [];
 	}
 
-	const todayStartMs = startOfDay(new TZDate(nowMs, TIMEZONE_NAME)).getTime();
 	const days: Array<DataDay> = [];
 
 	for (let day = startOfDay(new TZDate(first, TIMEZONE_NAME)); day.getTime() <= last; day = addDays(day, 1)) {
-		const dataDay = toDataDay(day, todayStartMs, nowMs);
+		const dataDay = toDataDay(day, nowMs);
 
 		if (dataDay && dataDay.start < dataDay.end && dataDay.start <= last && dataDay.end > first) {
 			days.push(dataDay);

@@ -37,7 +37,9 @@ export const PieChartCard = ({ className, to, label, data, exposureType }: PieCh
 					</h2>
 				</CardHeader>
 				<CardContent className="h-full">
-					<p className="text-muted-foreground">{t(($) => $.foremanDashboard.overview.pieChart.noData)}</p>
+					<p className="text-muted-foreground text-xs">
+						{t(($) => $.foremanDashboard.overview.pieChart.noData)}
+					</p>
 				</CardContent>
 			</Card>
 		);

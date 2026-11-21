@@ -25,15 +25,19 @@ export function ResetDemoDataButton() {
 	};
 
 	return (
+		// `w-0 min-w-full`: the button takes no width of its own when the menu sizes itself, then fills the menu's width,
+		// so adding it doesn't make the dropdown wider
 		<Button
 			type="button"
+			size="sm"
+			// Same look as an unselected role button in the DEMO box
 			className={cn(
-				"mt-2 w-full gap-2 text-sm text-zinc-600 dark:text-zinc-300",
-				"bg-amber-200 hover:bg-amber-300 dark:bg-amber-900/75 dark:hover:bg-amber-800",
+				"flex w-0 min-w-full border border-transparent text-amber-800 dark:text-amber-200",
+				"bg-amber-200 hover:bg-amber-300 dark:bg-amber-900/40 dark:hover:bg-amber-900/70",
 			)}
 			onClick={handleClick}
 		>
-			<RotateCcwIcon className="size-4" />
+			<RotateCcwIcon className="size-3.5" />
 			{label}
 		</Button>
 	);

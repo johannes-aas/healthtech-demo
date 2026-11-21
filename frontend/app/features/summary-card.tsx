@@ -1,3 +1,5 @@
+import { DangerLevelDots } from "@/components/danger-level-dots.tsx";
+import { Card, CardHeader } from "@/components/ui/card.tsx";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { useDate } from "@/features/date-picker/use-date.ts";
 import type { Exposure } from "@/features/exposure-picker/exposures.ts";
@@ -5,6 +7,7 @@ import { useUser } from "@/features/user/user-context.tsx";
 import { useView } from "@/features/views/use-view.ts";
 import { getLocale } from "@/i18n/locale.ts";
 import { exposureOverviewQueryOptions, exposureQueryOptions } from "@/lib/api.ts";
+import { type DangerLevel, dangerlevelStyles } from "@/lib/danger-levels.ts";
 import { type Aggregation, Aggregations } from "@/lib/dto/exposure.ts";
 import { buildExposureOverviewQuery, buildExposureQuery } from "@/lib/exposure-query-utils.ts";
 import { defaultDustField, exposures, parseAsDustField } from "@/lib/exposures.ts";
@@ -83,51 +86,52 @@ export function ExposureSummary({ exposureType }: ExposureSummaryProps) {
 		return <SummaryCardSkeleton />;
 	}
 
-	const safeLabel = t(($) => $.exposureSummary.aggregated.safe);
-	const warningLabel = t(($) => $.exposureSummary.aggregated.warning);
-	const dangerLabel = t(($) => $.exposureSummary.aggregated.danger);
+	return (
+		<div className="grid @sm:grid-cols-3 grid-cols-1 gap-3">
+			<SummaryStatCard
+				label={t(($) => $.exposureSummary.aggregated.safe)}
+				dangerLevel="safe"
+				minutes={data.safeMinutes}
+				locale={locale}
+			/>
+			<SummaryStatCard
+				label={t(($) => $.exposureSummary.aggregated.warning)}
+				dangerLevel="warning"
+				minutes={data.warningMinutes}
+				locale={locale}
+			/>
+			<SummaryStatCard
+				label={t(($) => $.exposureSummary.aggregated.danger)}
+				dangerLevel="danger"
+				minutes={data.dangerMinutes}
+				locale={locale}
+			/>
+		</div>
+	);
+}
 
-	const safeDuration = formatMinutesAsDuration(data.safeMinutes, locale);
-	const warningDuration = formatMinutesAsDuration(data.warningMinutes, locale);
-	const dangerDuration = formatMinutesAsDuration(data.dangerMinutes, locale);
+interface SummaryStatCardProps {
+	label: string;
+	dangerLevel: DangerLevel;
+	minutes: number;
+	locale: Locale;
+}
+
+/** Time spent at a danger level, styled like the foreman's StatCard. */
+function SummaryStatCard({ label, dangerLevel, minutes, locale }: SummaryStatCardProps) {
+	const duration = formatMinutesAsDuration(minutes, locale);
+	const { bgSubtle, border, text } = dangerlevelStyles[minutes === 0 ? "none" : dangerLevel];
 
 	return (
-		<div className="grid grid-cols-3 gap-3">
-			<p
-				title={`${safeLabel}: ${safeDuration}`}
-				className={cn(
-					"flex flex-col rounded-lg px-2 py-1",
-					data.safeMinutes > 0 ? "bg-safe-subtle text-safe-text" : "bg-secondary text-muted-foreground",
-				)}
-			>
-				<span className="text-xs">{safeLabel}</span>
-				<span className="font-medium text-sm tabular-nums">{safeDuration}</span>
-			</p>
-
-			<p
-				title={`${warningLabel}: ${warningDuration}`}
-				className={cn(
-					"flex flex-col rounded-lg px-2 py-1",
-					data.warningMinutes > 0
-						? "bg-warning-subtle text-warning-text"
-						: "bg-secondary text-muted-foreground",
-				)}
-			>
-				<span className="text-xs">{warningLabel}</span>
-				<span className="font-medium text-sm tabular-nums">{warningDuration}</span>
-			</p>
-
-			<p
-				title={`${dangerLabel}: ${dangerDuration}`}
-				className={cn(
-					"flex flex-col rounded-lg px-2 py-1",
-					data.dangerMinutes > 0 ? "bg-danger-subtle text-danger-text" : "bg-secondary text-muted-foreground",
-				)}
-			>
-				<span className="text-xs">{dangerLabel}</span>
-				<span className="font-medium text-sm tabular-nums">{dangerDuration}</span>
-			</p>
-		</div>
+		<Card title={`${label}: ${duration}`} className={cn("justify-between gap-1 px-3 py-2", bgSubtle, border, text)}>
+			<CardHeader className="flex items-center justify-between gap-2 p-0">
+				<h3 className={cn("font-medium text-xs", text)}>{label}</h3>
+				<div className="flex items-center">
+					<DangerLevelDots dangerLevel={dangerLevel} horizontal={true} size="sm" />
+				</div>
+			</CardHeader>
+			<p className={cn("text-balance font-medium text-base tabular-nums leading-tight", text)}>{duration}</p>
+		</Card>
 	);
 }
 
@@ -162,10 +166,10 @@ function formatMinutesAsDuration(totalMinutes: number, locale: Locale) {
 
 function SummaryCardSkeleton() {
 	return (
-		<div className="grid grid-cols-3 gap-3">
-			<Skeleton className="h-11 w-full rounded-xl" />
-			<Skeleton className="h-11 w-full rounded-xl" />
-			<Skeleton className="h-11 w-full rounded-xl" />
+		<div className="grid @sm:grid-cols-3 grid-cols-1 gap-3">
+			<Skeleton className="h-15 w-full rounded-xl" />
+			<Skeleton className="h-15 w-full rounded-xl" />
+			<Skeleton className="h-15 w-full rounded-xl" />
 		</div>
 	);
 }

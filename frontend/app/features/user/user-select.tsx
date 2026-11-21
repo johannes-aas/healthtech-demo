@@ -1,7 +1,15 @@
 import { Button } from "@/components/ui/button.tsx";
-import { Combobox, ComboboxContent, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox.tsx";
+import {
+	Combobox,
+	ComboboxContent,
+	ComboboxInput,
+	ComboboxItem,
+	ComboboxList,
+	useComboboxAnchor,
+} from "@/components/ui/combobox.tsx";
+import { InputGroupAddon } from "@/components/ui/input-group.tsx";
 import { cn } from "@/lib/utils.ts";
-import { XIcon } from "lucide-react";
+import { UserIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -27,6 +35,7 @@ export function UserSelect({
 	itemClassName,
 }: UserSelectProps) {
 	const { t } = useTranslation();
+	const anchorRef = useComboboxAnchor();
 
 	const [searchValue, setSearchValue] = useState<string>(value ? userSelectItemToStringLabel(value, users) : "");
 
@@ -67,19 +76,27 @@ export function UserSelect({
 				onValueChange={handleComboboxValueChange}
 				itemToStringLabel={resolveItemLabel}
 			>
-				<ComboboxInput
-					placeholder={placeholder}
-					disabled={disabled}
-					value={searchValue}
-					onChange={(e) => {
-						setSearchValue(e.target.value);
-					}}
-					className={cn(
-						"w-full rounded-r-md rounded-l-xl bg-background font-medium dark:bg-input/30",
-						inputClassName,
-					)}
-				/>
-				<ComboboxContent className={cn("rounded-xl", contentClassName)}>
+				<div ref={anchorRef} className="w-full">
+					<ComboboxInput
+						placeholder={placeholder}
+						disabled={disabled}
+						value={searchValue}
+						onChange={(e) => {
+							setSearchValue(e.target.value);
+						}}
+						className={cn(
+							"w-full rounded-l-xl bg-background font-medium dark:bg-input/30",
+							// Square off the seam with the "show all" button only when it is visible.
+							value === null ? "rounded-r-xl" : "rounded-r-md",
+							inputClassName,
+						)}
+					>
+						<InputGroupAddon align="inline-start">
+							<UserIcon aria-hidden="true" />
+						</InputGroupAddon>
+					</ComboboxInput>
+				</div>
+				<ComboboxContent anchor={anchorRef} className={cn("rounded-xl", contentClassName)}>
 					<ComboboxList>
 						{(item) => (
 							<ComboboxItem
@@ -94,19 +111,26 @@ export function UserSelect({
 				</ComboboxContent>
 			</Combobox>
 
-			<Button
-				aria-label={t(($) => $.foremanDashboard.overview.clearUserSelection)}
-				variant="outline"
-				size="icon"
-				onClick={() => {
-					onValueChange(null);
-					setSearchValue("");
-				}}
-				disabled={disabled || value === null}
-				className="rounded-r-xl"
-			>
-				<XIcon className="size-4" aria-hidden="true" />
-			</Button>
+			{value !== null && (
+				<Button
+					type="button"
+					title={t(($) => $.foremanDashboard.overview.clearUserSelection)}
+					aria-label={t(($) => $.foremanDashboard.overview.clearUserSelection)}
+					variant="outline"
+					onClick={() => {
+						onValueChange(null);
+						setSearchValue("");
+					}}
+					disabled={disabled}
+					className="shrink-0 rounded-r-xl px-2 xl:px-3"
+				>
+					<XIcon className="size-4" aria-hidden="true" />
+					{/* Icon only below xl to keep the controls on one row */}
+					<span className="hidden text-sm xl:inline">
+						{t(($) => $.foremanDashboard.overview.showAllUsers)}
+					</span>
+				</Button>
+			)}
 		</div>
 	);
 }

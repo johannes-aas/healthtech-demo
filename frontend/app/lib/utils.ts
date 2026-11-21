@@ -14,7 +14,7 @@ import type { Exposure, ExposureUnit } from "./exposures.ts";
 
 const MAX_CHART_HOUR = 23;
 const MIN_CHART_HOUR = 0;
-const UG_TO_MG = 0.001;
+export const UG_TO_MG = 0.001;
 export const DUST_Y_AXIS_STEP = 7.5;
 
 export function cn(...inputs: Array<ClassValue>) {

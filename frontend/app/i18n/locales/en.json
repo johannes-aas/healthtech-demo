@@ -49,6 +49,7 @@
     "label": "Views",
     "day": "Day",
     "week": "Week",
+    "weekShort": "Wk",
     "month": "Month",
     "selectionText": "You are viewing a {{view}}.",
     "dateSelectionSingle": "You have selected {{date}}.",
@@ -80,8 +81,7 @@
     "statistics": "Statistics",
     "export": "Export overview as PDF",
     "theme": "Theme",
-    "language": "Language",
-    "map": "Map"
+    "language": "Language"
   },
   "live": {
     "timeRange": {
@@ -194,8 +194,7 @@
       },
       "membersCount": "{{count}} operator in team",
       "membersCount_one": "{{count}} operator in team",
-      "membersCount_other": "{{count}} operators in team",
-      "mapTitle": "Location map"
+      "membersCount_other": "{{count}} operators in team"
     },
     "overview": {
       "title": {
@@ -224,13 +223,16 @@
       },
       "selectUserPlaceholder": "Select team member",
       "clearUserSelection": "Clear user selection",
-      "clearExposureFilter": "Clear exposure filter"
+      "clearExposureFilter": "Clear exposure filter",
+      "showAllExposures": "Show all",
+      "showAllUsers": "Show all"
     },
     "actionCard": {
-      "safe": "Team status: Within exposure limits",
-      "warning": "Team status: Attention may be required",
+      "teamStatus": "Team status:",
+      "safe": "Within exposure limits",
+      "warning": "Action should be considered",
       "warningDescription": "One or more operators are above the action value. Monitoring or preventative measures may be needed.",
-      "danger": "Team status: Immediate action required",
+      "danger": "Immediate action required",
       "dangerDescription": "One or more operators are above the limit value. Immediate follow-up according to procedure is required.",
       "day": "Day",
       "week": "Week"
@@ -238,18 +240,6 @@
     "userStatusChart": {
       "xAxisLabel": "% of exposure limit",
       "noData": "No exposure data available for any operators"
-    },
-    "siteMap": {
-      "title": "Site map",
-      "noOperators": "No operators in hall",
-      "viewUser": "View {{name}}",
-      "viewUserAria": "View user {{name}}",
-      "viewExposureData": "View {{exposure}} data for {{name}}",
-      "operatorExposureStatus": {
-        "danger": "Above limit value for {{exposure}}",
-        "warning": "Above action value for {{exposure}}",
-        "safe": "Within safe limit for {{exposure}}"
-      }
     }
   },
   "user": {
@@ -260,10 +250,7 @@
     "searchPlaceholder": "Search users..."
   },
   "demo": {
-    "currentRole": "Current role:",
-    "navigate": {
-      "toRegister": "Go to register page"
-    }
+    "currentRole": "Current role:"
   },
   "select": {
     "all": "Select all",
@@ -276,23 +263,10 @@
     },
     "subtitle": {
       "allExposureTypes": "All exposure types",
-      "viewDay": "Day",
-      "viewWeek": "Week {{week}}",
-      "viewMonth": "Month",
-      "dateDay": "{{date}}",
-      "dateRange": "{{startDate}} - {{endDate}}"
+      "today": "Today, {{date}}",
+      "yesterday": "Yesterday, {{date}}",
+      "week": "Week {{week}} · {{range}}"
     }
-  },
-  "register": {
-    "title": "Register to HealthTech",
-    "name": "Full name",
-    "email": "Email address",
-    "password": "Password",
-    "confirmPassword": "Confirm password",
-    "privacyConsent": "I consent to sharing my data with my supervisors for health and safety purposes.",
-    "createAccount": "Create account",
-    "haveAccount": "Already have an account? ",
-    "login": "Log in"
   },
   "securityRegulationsCard": {
     "title": "Current safety regulations",
@@ -311,13 +285,6 @@
     "today": "Today",
     "previous": "Previous",
     "next": "Next"
-  },
-  "exposureTrendLineChartCard": {
-    "title": {
-      "day": "Daily exposure trend",
-      "week": "Weekly exposure trend",
-      "month": "Monthly exposure trend"
-    }
   },
   "exposureSlider": {
     "title": "Average exposure for {{view}}"

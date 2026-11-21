@@ -5,7 +5,6 @@ import { ExposureLineChartCardSkeleton } from "@/features/exposure-line-chart-ca
 import NoiseExposureLineChartCard from "@/features/exposure-line-chart-card/noise-exposure-line-chart-card.tsx";
 import { ExposureGraphEmptyState, ExposureStatisticsSection } from "@/features/statistic-card.tsx";
 import { getMaxPointByValue } from "@/features/statistic-card-utils.ts";
-import { NoiseTrendLineChartCard } from "@/features/trend-line-chart-card/noise-trend-line-chart-card.tsx";
 import { useUser } from "@/features/user/user-context.tsx";
 import { useView } from "@/features/views/use-view.ts";
 import { WeekWidget } from "@/features/week-widget/week-widget.tsx";
@@ -86,7 +85,6 @@ export default function Noise() {
 
 	const calendarData = mapExposureDataToTimeBucketStatuses(data ?? [], exposure, usePeakAggregation);
 
-	const showTrendLineChart = view === "month" || view === "week";
 	const showNoiseStatistics = view === "day";
 
 	return (
@@ -128,7 +126,6 @@ export default function Noise() {
 					/>
 				)}
 			</div>
-			{showTrendLineChart && <NoiseTrendLineChartCard usePeakAggregation={usePeakAggregation} />}
 		</div>
 	);
 }

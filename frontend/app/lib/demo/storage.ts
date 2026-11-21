@@ -8,7 +8,9 @@ import { SEED_USERS } from "./seed-data.ts";
  * changes them, and notes when the visitor writes one, so "Reset demo data" just removes these keys.
  */
 
-const KEY_PREFIX = "healthtech-demo:v1:";
+const KEY_NAMESPACE = "healthtech-demo:";
+// Bump when the seed data changes in a way that makes saved state invalid (v2: smaller team)
+const KEY_PREFIX = `${KEY_NAMESPACE}v2:`;
 
 export type StorageKey = "users" | "notes";
 
@@ -44,7 +46,8 @@ export function writeStored(key: StorageKey, value: unknown) {
 export function resetDemoData() {
 	try {
 		for (const key of Object.keys(localStorage)) {
-			if (key.startsWith(KEY_PREFIX)) {
+			// All versions, so data saved by an older version of the demo is cleared too
+			if (key.startsWith(KEY_NAMESPACE)) {
 				localStorage.removeItem(key);
 			}
 		}

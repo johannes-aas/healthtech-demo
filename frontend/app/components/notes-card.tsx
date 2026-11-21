@@ -1,6 +1,7 @@
 import { useDate } from "@/features/date-picker/use-date.ts";
 import { useUser } from "@/features/user/user-context.tsx";
 import { useView } from "@/features/views/use-view.ts";
+import { useCurrentSearchParams } from "@/hooks/use-current-search-params.ts";
 import { useFormatDate } from "@/hooks/use-format-date.ts";
 import { TIMEZONE } from "@/i18n/locale.ts";
 import { createNote, deleteNote, notesQueryOptions, updateNote } from "@/lib/api.ts";
@@ -36,7 +37,8 @@ export const NotesCard = ({ forceInteractiveMode = false }: NotesCardProps) => {
 	const { t, i18n } = useTranslation();
 	const { view } = useView();
 	const { date } = useDate();
-	const { pathname, search } = useLocation();
+	const { pathname } = useLocation();
+	const search = useCurrentSearchParams();
 	const queryClient = useQueryClient();
 	const { user } = useUser();
 	const formatDate = useFormatDate();
@@ -153,7 +155,7 @@ export const NotesCard = ({ forceInteractiveMode = false }: NotesCardProps) => {
 					<Textarea
 						placeholder={t(($) => $.notes.interactive.placeholder)}
 						value={noteValue}
-						className="-mx-2 -my-1 min-h-17 w-[calc(100%+var(--spacing)*4)] rounded-t-none border-none bg-transparent px-2 py-1 text-foreground text-sm dark:bg-transparent"
+						className="-mx-2 -my-1 min-h-28 w-[calc(100%+var(--spacing)*4)] rounded-t-none border-none bg-transparent px-2 py-1 text-foreground text-sm dark:bg-transparent"
 						onChange={(e) => setNoteValue(e.target.value)}
 						onBlur={handleBlur}
 					/>
