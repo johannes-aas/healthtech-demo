@@ -29,7 +29,7 @@ import {
 	VIBRATION_SESSIONS_PER_DAY,
 } from "./calibration.ts";
 import { getUserProfile, type UserProfile } from "./profiles.ts";
-import { hashString, lerp, normal, sampleQuantile, samplePoisson, unitRandom } from "./random.ts";
+import { hashString, lerp, normal, samplePoisson, sampleQuantile, unitRandom } from "./random.ts";
 import type { DataDay } from "./time.ts";
 
 /**
