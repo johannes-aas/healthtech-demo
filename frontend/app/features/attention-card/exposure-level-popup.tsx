@@ -1,6 +1,7 @@
 import { ExposureBadge } from "@/components/exposure-badge.tsx";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
 import { BasePopup } from "@/features/popups/base-popup.tsx";
+import { useCurrentSearchParams } from "@/hooks/use-current-search-params.ts";
 import type { DangerLevel } from "@/lib/danger-levels.ts";
 import type { UserWithStatusDto } from "@/lib/dto/user.ts";
 import { exposures } from "@/lib/exposures.ts";
@@ -30,6 +31,11 @@ const getExposureBadges = (worker: UserWithStatusDto, popupStatus: DangerLevel) 
 
 const WorkerRow = ({ worker, status }: { worker: UserWithStatusDto; status: DangerLevel }) => {
 	const { t } = useTranslation();
+	const searchParams = useCurrentSearchParams();
+
+	// Keep the current query params (date, view, ...) so the selected period is preserved
+	const userSearchParams = new URLSearchParams(searchParams);
+	userSearchParams.set("userId", worker.id);
 
 	const exposureBadges = getExposureBadges(worker, status).map(({ exposure, data }) => (
 		<ExposureBadge key={exposure} exposure={exposure} dangerLevel={data?.dangerLevel ?? "safe"}>
@@ -40,7 +46,10 @@ const WorkerRow = ({ worker, status }: { worker: UserWithStatusDto; status: Dang
 	return (
 		<TableRow key={worker.id}>
 			<TableCell>
-				<Link to={`/foreman/?userId=${worker.id}`} className="flex w-full items-center justify-between">
+				<Link
+					to={`/foreman/?${userSearchParams.toString()}`}
+					className="flex w-full items-center justify-between"
+				>
 					<p>{worker.name}</p>
 					<div className="flex gap-2">{exposureBadges}</div>
 				</Link>

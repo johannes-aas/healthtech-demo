@@ -1,6 +1,7 @@
 import { useDate } from "@/features/date-picker/use-date.ts";
 import { useUser } from "@/features/user/user-context.tsx";
 import { useView } from "@/features/views/use-view.ts";
+import { useCurrentSearchParams } from "@/hooks/use-current-search-params.ts";
 import { useFormatDate } from "@/hooks/use-format-date.ts";
 import { TIMEZONE } from "@/i18n/locale.ts";
 import { createNote, deleteNote, notesQueryOptions, updateNote } from "@/lib/api.ts";
@@ -36,7 +37,8 @@ export const NotesCard = ({ forceInteractiveMode = false }: NotesCardProps) => {
 	const { t, i18n } = useTranslation();
 	const { view } = useView();
 	const { date } = useDate();
-	const { pathname, search } = useLocation();
+	const { pathname } = useLocation();
+	const search = useCurrentSearchParams();
 	const queryClient = useQueryClient();
 	const { user } = useUser();
 	const formatDate = useFormatDate();

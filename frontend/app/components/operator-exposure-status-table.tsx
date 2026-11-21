@@ -1,18 +1,19 @@
 import { ExposureBadge } from "@/components/exposure-badge.tsx";
 import { DataTable } from "@/components/ui/data-table.tsx";
+import { useCurrentSearchParams } from "@/hooks/use-current-search-params.ts";
 import { type DangerLevel, mapDangerLevelToLabel } from "@/lib/danger-levels.ts";
 import type { UserWithStatusDto } from "@/lib/dto/user.ts";
 import type { Exposure } from "@/lib/exposures.ts";
 import type { ColumnDef } from "@tanstack/react-table";
 import { t } from "i18next";
-import { Link, useSearchParams } from "react-router";
+import { Link } from "react-router";
 
 export interface ExposureTableCellProps {
 	data: Array<UserWithStatusDto> | undefined;
 }
 
 export function OperatorExposureStatusTable({ data }: ExposureTableCellProps) {
-	const [searchParams] = useSearchParams();
+	const searchParams = useCurrentSearchParams();
 
 	const buildSearchParams = (userId: string, exposure?: Exposure) => {
 		const params = new URLSearchParams(searchParams);
