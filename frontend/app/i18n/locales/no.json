@@ -46,6 +46,7 @@
     "label": "Visning",
     "day": "Dag",
     "week": "Uke",
+    "weekShort": "U",
     "month": "Måned",
     "selectionText": "Du blir vist en {{view}}.",
     "dateSelectionSingle": "Du har valgt {{date}}.",
@@ -219,13 +220,16 @@
       },
       "selectUserPlaceholder": "Velg et teammedlem",
       "clearUserSelection": "Fjern brukervalg",
-      "clearExposureFilter": "Fjern eksponeringsfilter"
+      "clearExposureFilter": "Fjern eksponeringsfilter",
+      "showAllExposures": "Vis alle",
+      "showAllUsers": "Vis alle"
     },
     "actionCard": {
-      "safe": "Teamstatus: Innenfor eksponeringsgrenser",
-      "warning": "Teamstatus: Oppmerksomhet kan være nødvendig",
+      "teamStatus": "Teamstatus:",
+      "safe": "Innenfor eksponeringsgrenser",
+      "warning": "Tiltak bør vurderes",
       "warningDescription": "En eller flere operatører er over tiltaksverdien. Overvåking eller forebyggende tiltak kan være nødvendig.",
-      "danger": "Teamstatus: Umiddelbar handling kreves",
+      "danger": "Umiddelbar handling kreves",
       "dangerDescription": "En eller flere operatører er over grenseverdien. Umiddelbar oppfølging i henhold til prosedyre kreves.",
       "day": "Dag",
       "week": "Uke"
@@ -256,11 +260,9 @@
     },
     "subtitle": {
       "allExposureTypes": "Alle eksponeringstyper",
-      "viewDay": "Dag",
-      "viewWeek": "Uke {{week}}",
-      "viewMonth": "Måned",
-      "dateDay": "{{date}}",
-      "dateRange": "{{startDate}} - {{endDate}}"
+      "today": "I dag, {{date}}",
+      "yesterday": "I går, {{date}}",
+      "week": "Uke {{week}} · {{range}}"
     }
   },
   "securityRegulationsCard": {

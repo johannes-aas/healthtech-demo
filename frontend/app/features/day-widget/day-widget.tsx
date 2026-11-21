@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card.tsx";
 import { useDate } from "@/features/date-picker/use-date.ts";
 import { exposures } from "@/features/exposure-picker/exposures.ts";
 import { useFormatDate } from "@/hooks/use-format-date.ts";
@@ -69,8 +70,8 @@ export function DayWidget({ data, startHour = 0, endHour = 23, headerRight, buil
 	);
 
 	return (
-		<div className={cn("relative", headerRight && "")}>
-			{headerRight && <div className="absolute top-0 right-0 z-20 flex items-center gap-2">{headerRight}</div>}
+		<Card className="relative p-3">
+			{headerRight && <div className="absolute top-2 right-2 z-20 flex items-center gap-2">{headerRight}</div>}
 
 			<div className="overflow-x-auto">
 				<div className="w-max min-w-full space-y-1">
@@ -150,6 +151,6 @@ export function DayWidget({ data, startHour = 0, endHour = 23, headerRight, buil
 					})}
 				</div>
 			</div>
-		</div>
+		</Card>
 	);
 }

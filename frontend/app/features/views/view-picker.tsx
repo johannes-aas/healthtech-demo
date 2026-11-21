@@ -1,133 +1,66 @@
-import { Button } from "@/components/ui/button.tsx";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group.tsx";
-import { TIMEZONE } from "@/i18n/locale.ts";
-import { today } from "@/lib/date.ts";
 import { cn } from "@/lib/utils.ts";
-import type { TZDate } from "@date-fns/tz";
-import { isAfter, isBefore, isEqual, isToday } from "date-fns";
-import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useDate } from "../date-picker/use-date.ts";
 import { useView } from "./use-view.ts";
 import type { View } from "./utils.ts";
 import { DayViewIcon, MonthViewIcon, WeekViewIcon } from "./views.ts";
 
 interface ViewPickerProps {
-	withNavigationButtons?: boolean;
 	className?: string;
 	allowedViews?: Array<View>;
-	minDate?: TZDate;
-	maxDate?: TZDate;
 }
 
-export function ViewPicker({
-	className,
-	withNavigationButtons = false,
-	allowedViews,
-	minDate,
-	maxDate,
-}: ViewPickerProps) {
+export function ViewPicker({ className, allowedViews }: ViewPickerProps) {
 	const { view, setView } = useView();
-	const { date, navigate, setDate } = useDate();
 	const { t } = useTranslation();
 	const views = allowedViews ?? ["day", "week", "month"];
 
-	const previousTarget = minDate && isBefore(navigate.previousValue, minDate) ? minDate : navigate.previousValue;
-	const nextTarget = maxDate && isAfter(navigate.nextValue, maxDate) ? maxDate : navigate.nextValue;
-
-	const canNavigatePrevious = !isEqual(previousTarget, date);
-	const canNavigateNext = !isEqual(nextTarget, date);
-
-	const isTodayDate = isToday(date, { in: TIMEZONE });
-
-	const previousString = t(($) => $.viewPicker.previous);
-	const todayString = t(($) => $.viewPicker.today);
-	const nextString = t(($) => $.viewPicker.next);
-
 	return (
-		<div className="flex flex-col gap-2">
-			<div className="flex justify-center">
-				<ToggleGroup
-					type="single"
-					value={view}
-					variant="outline"
-					className={cn("inline-grid w-full auto-cols-fr grid-flow-col", className)}
-					onValueChange={(value: View) => {
-						// Value is an empty string when clicking the already selected item, so we need this check to avoid
-						// deselecting.
-						if (value) {
-							setView(value);
-						}
-					}}
+		<ToggleGroup
+			type="single"
+			value={view}
+			variant="outline"
+			className={cn("inline-grid shrink-0 auto-cols-fr grid-flow-col rounded-xl", className)}
+			onValueChange={(value: View) => {
+				// Value is an empty string when clicking the already selected item, so we need this check to avoid
+				// deselecting.
+				if (value) {
+					setView(value);
+				}
+			}}
+		>
+			{views.includes("day") && (
+				<ToggleGroupItem
+					value="day"
+					aria-label={t(($) => $.views.day)}
+					className="px-2 first:rounded-l-xl! last:rounded-r-xl! lg:px-3"
 				>
-					{views.includes("day") && (
-						<ToggleGroupItem value="day" aria-label={t(($) => $.views.day)}>
-							<div className="flex items-center gap-2">
-								<DayViewIcon className="size-4" />
-								<p className="text-sm">{t(($) => $.views.day)}</p>
-							</div>
-						</ToggleGroupItem>
-					)}
-
-					{views.includes("week") && (
-						<ToggleGroupItem value="week" aria-label={t(($) => $.views.week)}>
-							<div className="flex items-center gap-2">
-								<WeekViewIcon className="size-4" />
-								<p className="text-sm">{t(($) => $.views.week)}</p>
-							</div>
-						</ToggleGroupItem>
-					)}
-
-					{views.includes("month") && (
-						<ToggleGroupItem value="month" aria-label={t(($) => $.views.month)}>
-							<div className="flex items-center gap-2">
-								<MonthViewIcon className="size-4" />
-								<p className="text-sm">{t(($) => $.views.month)}</p>
-							</div>
-						</ToggleGroupItem>
-					)}
-				</ToggleGroup>
-			</div>
-
-			{withNavigationButtons && (
-				<div className="grid grid-cols-3 items-center gap-2">
-					<Button
-						title={previousString}
-						size="xs"
-						variant="ghost"
-						className="px-1!"
-						onClick={() => setDate(previousTarget)}
-						disabled={!canNavigatePrevious}
-					>
-						<ChevronLeftIcon className="size-3.5 shrink-0" />
-						<p className="truncate text-xs">{previousString}</p>
-					</Button>
-
-					<Button
-						title={todayString}
-						size="xs"
-						variant="ghost"
-						className="px-1!"
-						onClick={() => setDate(today())}
-						disabled={isTodayDate}
-					>
-						<CalendarIcon className="size-3.5 shrink-0" />
-						<p className="truncate text-xs">{todayString}</p>
-					</Button>
-
-					<Button
-						title={nextString}
-						size="xs"
-						variant="ghost"
-						className="px-1!"
-						onClick={() => setDate(nextTarget)}
-						disabled={!canNavigateNext}
-					>
-						<p className="truncate text-xs">{nextString}</p>
-						<ChevronRightIcon className="size-3.5 shrink-0" />
-					</Button>
-				</div>
+					<DayViewIcon className="size-4" />
+					<p className="text-xs lg:text-sm">{t(($) => $.views.day)}</p>
+				</ToggleGroupItem>
 			)}
-		</div>
+
+			{views.includes("week") && (
+				<ToggleGroupItem
+					value="week"
+					aria-label={t(($) => $.views.week)}
+					className="px-2 first:rounded-l-xl! last:rounded-r-xl! lg:px-3"
+				>
+					<WeekViewIcon className="size-4" />
+					<p className="text-xs lg:text-sm">{t(($) => $.views.week)}</p>
+				</ToggleGroupItem>
+			)}
+
+			{views.includes("month") && (
+				<ToggleGroupItem
+					value="month"
+					aria-label={t(($) => $.views.month)}
+					className="px-2 first:rounded-l-xl! last:rounded-r-xl! lg:px-3"
+				>
+					<MonthViewIcon className="size-4" />
+					<p className="text-xs lg:text-sm">{t(($) => $.views.month)}</p>
+				</ToggleGroupItem>
+			)}
+		</ToggleGroup>
 	);
 }

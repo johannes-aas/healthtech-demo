@@ -3,6 +3,7 @@ import { CalendarWidget } from "@/features/calendar-widget/calendar-widget.tsx";
 import { useDate } from "@/features/date-picker/use-date.ts";
 import { ExposureLineChartCardSkeleton } from "@/features/exposure-line-chart-card/base-exposure-line-chart-card.tsx";
 import { DustExposureLineChartCard } from "@/features/exposure-line-chart-card/dust-exposure-line-chart-card.tsx";
+import { DustUnitTabs } from "@/features/exposure-line-chart-card/dust-unit-tabs.tsx";
 import { ExposureGraphEmptyState, ExposureStatisticsSection } from "@/features/statistic-card.tsx";
 import { getMaxPointByValue } from "@/features/statistic-card-utils.ts";
 import { useUser } from "@/features/user/user-context.tsx";
@@ -76,15 +77,18 @@ export default function Dust() {
 	return (
 		<div className="flex flex-col gap-8">
 			<div className="flex flex-1 flex-col gap-4">
-				<Tabs value={dustField} onValueChange={(value) => setDustField(value as DustField)}>
-					<TabsList>
-						{dustFields.map((field) => (
-							<TabsTrigger key={field} value={field}>
-								{t(($) => $.exposures.dustFields[field])}
-							</TabsTrigger>
-						))}
-					</TabsList>
-				</Tabs>
+				<div className="flex flex-wrap items-center justify-between gap-3">
+					<Tabs value={dustField} onValueChange={(value) => setDustField(value as DustField)}>
+						<TabsList>
+							{dustFields.map((field) => (
+								<TabsTrigger key={field} value={field}>
+									{t(($) => $.exposures.dustFields[field])}
+								</TabsTrigger>
+							))}
+						</TabsList>
+					</Tabs>
+					{view === "day" && <DustUnitTabs />}
+				</div>
 
 				{isLoading ? (
 					<ExposureLineChartCardSkeleton />

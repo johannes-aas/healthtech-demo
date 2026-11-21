@@ -1,4 +1,5 @@
 import { DangerLevelDots } from "@/components/danger-level-dots.tsx";
+import { Card } from "@/components/ui/card.tsx";
 import { useDate } from "@/features/date-picker/use-date.ts";
 import { useFormatDate } from "@/hooks/use-format-date.ts";
 import { TIMEZONE } from "@/i18n/locale.ts";
@@ -66,7 +67,7 @@ export function WeekWidget({ dayStartHour = 8, dayEndHour = 16, data }: WeekWidg
 	};
 
 	return (
-		<div className="overflow-hidden">
+		<Card className="overflow-hidden p-3">
 			<div className="isolate overflow-x-auto">
 				<div className="flex">
 					{/* Time-label column */}
@@ -96,7 +97,7 @@ export function WeekWidget({ dayStartHour = 8, dayEndHour = 16, data }: WeekWidg
 								type="button"
 								className={cn(
 									"flex min-w-20 flex-1 flex-col rounded-xl p-1.5 text-left",
-									"cursor-pointer transition-colors hover:bg-secondary",
+									"cursor-pointer transition-colors hover:bg-card-highlight",
 									CELL_GAP,
 								)}
 								onClick={() => handleHourClick(segment.date)}
@@ -146,7 +147,7 @@ export function WeekWidget({ dayStartHour = 8, dayEndHour = 16, data }: WeekWidg
 					})}
 				</div>
 			</div>
-		</div>
+		</Card>
 	);
 }
 

@@ -33,13 +33,17 @@ import { useQuery } from "@tanstack/react-query";
 import {
 	Bell,
 	HatGlassesIcon,
+	House,
 	Languages,
+	LayoutDashboard,
 	type LucideIcon,
 	Monitor,
 	Moon,
 	Palette,
+	Radio,
 	Sun,
 	User as UserIcon,
+	Users,
 } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -72,7 +76,15 @@ function HomeLink() {
 	);
 }
 
-function getLinks(t: TranslateFn, role: User["role"] | null): Array<{ to: To; label: string; icon?: LucideIcon }> {
+type NavRoute = {
+	to: To;
+	label: string;
+	icon?: LucideIcon;
+	/** Additional pathnames for which this link should be shown as active. */
+	activePaths?: Array<string>;
+};
+
+function getLinks(t: TranslateFn, role: User["role"] | null): Array<NavRoute> {
 	switch (role) {
 		case null: {
 			return [];
@@ -80,13 +92,13 @@ function getLinks(t: TranslateFn, role: User["role"] | null): Array<{ to: To; la
 
 		case "operator": {
 			return [
-				{ to: href("/operator/live"), label: t(($) => $.layout.live) },
-				{ to: href("/operator"), label: t(($) => $.layout.overview) },
-				{ to: href("/operator/dust"), label: t(($) => $.exposures.dust) },
-				{ to: href("/operator/noise"), label: t(($) => $.exposures.noise) },
+				{ to: href("/operator/live"), label: t(($) => $.layout.live), icon: Radio },
 				{
-					to: href("/operator/vibration"),
-					label: t(($) => $.exposures.vibration),
+					to: href("/operator"),
+					label: t(($) => $.layout.overview),
+					icon: LayoutDashboard,
+					// The exposure type pages are filters of the overview, navigated to from within the page.
+					activePaths: [href("/operator/dust"), href("/operator/noise"), href("/operator/vibration")],
 				},
 			];
 		}
@@ -96,10 +108,12 @@ function getLinks(t: TranslateFn, role: User["role"] | null): Array<{ to: To; la
 				{
 					to: href("/foreman"),
 					label: t(($) => $.layout.home),
+					icon: House,
 				},
 				{
 					to: href("/foreman/team"),
 					label: t(($) => $.layout.team),
+					icon: Users,
 				},
 			];
 		}
@@ -180,7 +194,7 @@ export default function Layout() {
 	return (
 		<SidebarProvider defaultOpen={false}>
 			<SidebarInset>
-				<div className="mx-auto w-full max-w-[90rem]">
+				<div className="mx-auto flex w-full max-w-[90rem] flex-1 flex-col">
 					<header className="sticky top-0 z-40 mx-5 flex items-center justify-between bg-background/95 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80">
 						{desktopHeader}
 
@@ -209,7 +223,7 @@ export default function Layout() {
 						title={t(($) => $.common.notifications)}
 					/>
 
-					<main className="m-5 items-center justify-center">
+					<main className="m-5 flex flex-1 flex-col">
 						<Outlet />
 					</main>
 				</div>
@@ -338,48 +352,63 @@ function UserDropdown({
 						</DropdownMenuSubContent>
 					</DropdownMenuSub>
 
-					<div className="m-1 mt-4 rounded-lg bg-yellow-100 p-2 dark:bg-amber-950">
-						<h3 className="font-semibold text-sm text-zinc-600 dark:text-zinc-300">{"DEMO"}</h3>
+					<div className="m-1 mt-3">
+						{/* Tab-shaped label: overlaps the box's top border so the two read as one shape */}
+						<span className="relative z-10 -mb-0.5 block w-fit rounded-t-md border-[1.5px] border-amber-500 border-b-0 bg-amber-100 px-2 pt-0.5 font-semibold text-[11px] text-amber-900 uppercase leading-3 tracking-widest dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
+							{"Demo"}
+						</span>
 
-						<div className="mt-2 flex gap-2.5">
-							{users.length > 0 ? (
-								Object.keys(UserRoleSchema.enum).map((role) => {
-									const roleValue = role as User["role"];
-									const isActive = user.role === roleValue;
+						<div className="rounded-lg rounded-tl-none border-[1.5px] border-amber-500 bg-amber-100 p-2.5 dark:border-amber-800 dark:bg-amber-950">
+							<div className="flex gap-2">
+								{users.length > 0 ? (
+									Object.keys(UserRoleSchema.enum).map((role) => {
+										const roleValue = role as User["role"];
+										const isActive = user.role === roleValue;
 
-									return (
-										<Button
-											key={role}
-											type="button"
-											className={cn(
-												"flex-1 text-sm text-zinc-600 dark:text-zinc-300",
-												"bg-amber-200 hover:bg-amber-300 dark:bg-amber-900/75 dark:hover:bg-amber-800",
-												isActive && "bg-amber-300 dark:bg-amber-800",
-											)}
-											onClick={() => {
-												const userWithRole = users.find((u) => u.role === roleValue);
-												if (userWithRole) {
-													setUser(userWithRole);
-												}
-											}}
-										>
-											{userRoleToString(roleValue, t)}
-										</Button>
-									);
-								})
-							) : (
-								<Skeleton className="h-6 w-36 bg-amber-200 dark:bg-amber-900/75" />
+										return (
+											<Button
+												key={role}
+												type="button"
+												size="sm"
+												aria-pressed={isActive}
+												className={cn(
+													"flex-1 border border-transparent text-amber-800 dark:text-amber-200",
+													"bg-amber-200 hover:bg-amber-300 dark:bg-amber-900/40 dark:hover:bg-amber-900/70",
+													isActive &&
+														"border-amber-600 bg-amber-300 font-semibold text-amber-950 shadow-xs dark:border-amber-600 dark:bg-amber-900 dark:text-amber-100",
+												)}
+												onClick={() => {
+													const userWithRole = users.find((u) => u.role === roleValue);
+													if (userWithRole) {
+														setUser(userWithRole);
+													}
+												}}
+											>
+												{userRoleToString(roleValue, t)}
+											</Button>
+										);
+									})
+								) : (
+									<Skeleton className="h-8 w-36 bg-amber-200 dark:bg-amber-900/40" />
+								)}
+							</div>
+
+							{user.role && (
+								<p className="mt-2 text-amber-800 text-xs dark:text-amber-300/80">
+									{t(($) => $.demo.currentRole)}{" "}
+									<span className="font-semibold text-amber-950 dark:text-amber-100">
+										{userRoleToString(user.role, t)}
+									</span>
+								</p>
+							)}
+
+							{IS_DEMO_MODE && (
+								<>
+									<div className="-mx-2.5 my-2.5 border-amber-500 border-t-[1.5px] dark:border-amber-800" />
+									<ResetDemoDataButton />
+								</>
 							)}
 						</div>
-
-						{user.role && (
-							<p className="my-2 text-sm text-zinc-600 dark:text-zinc-300">
-								{t(($) => $.demo.currentRole)}{" "}
-								<span className="font-semibold">{userRoleToString(user.role, t)}</span>
-							</p>
-						)}
-
-						{IS_DEMO_MODE && <ResetDemoDataButton />}
 					</div>
 				</DropdownMenuContent>
 			</DropdownMenu>
@@ -397,7 +426,7 @@ function UserDropdown({
 	);
 }
 
-function NavTabs({ routes }: { routes: Array<{ label: string; to: To; icon?: LucideIcon }> }) {
+function NavTabs({ routes }: { routes: Array<NavRoute> }) {
 	const { view } = useView();
 	const { date } = useDate();
 	const location = useLocation();
@@ -413,9 +442,13 @@ function NavTabs({ routes }: { routes: Array<{ label: string; to: To; icon?: Luc
 		return path.replace(/\/+$/, "");
 	}
 
-	const activeNavIndex = routes.findIndex(
-		(route) => normalizePathname(route.to.toString()) === normalizePathname(pathname),
-	);
+	const normalizedPathname = normalizePathname(pathname);
+	const isRouteActive = (route: NavRoute) =>
+		[route.to.toString(), ...(route.activePaths ?? [])].some(
+			(path) => normalizePathname(path) === normalizedPathname,
+		);
+
+	const activeNavIndex = routes.findIndex(isRouteActive);
 
 	// update pill whenever the active route changes,
 	useLayoutEffect(() => {
@@ -431,21 +464,20 @@ function NavTabs({ routes }: { routes: Array<{ label: string; to: To; icon?: Luc
 	}, [activeNavIndex]);
 
 	return (
-		<div className="relative mx-auto flex h-11 flex-row rounded-full bg-accent px-2 dark:bg-card">
+		<div className="relative mx-auto flex h-11 flex-row rounded-full bg-background px-2">
 			<div
 				className="absolute top-0 bottom-0 z-10 flex overflow-hidden rounded-full py-1 transition-all duration-300"
 				style={{ left: pillLeft, width: pillWidth }}
 			>
-				<span className="h-full w-full rounded-full bg-background shadow-sm" />
+				<span className="h-full w-full rounded-full bg-primary shadow-sm" />
 			</div>
 
 			{routes.map((route, i) => {
-				const className = ({ isActive }: { isActive: boolean }) =>
-					cn(
-						"z-20 flex cursor-pointer select-none items-center rounded-full px-5 py-2",
-						"text-center font-medium text-muted-foreground text-sm hover:text-foreground",
-						isActive && "text-foreground",
-					);
+				const className = cn(
+					"z-20 flex cursor-pointer select-none items-center rounded-full px-5 py-2",
+					"text-center font-medium text-muted-foreground text-sm hover:text-foreground",
+					i === activeNavIndex && "text-primary-foreground hover:text-primary-foreground",
+				);
 
 				return (
 					<NavLink
@@ -462,7 +494,10 @@ function NavTabs({ routes }: { routes: Array<{ label: string; to: To; icon?: Luc
 						className={className}
 						prefetch="intent"
 					>
-						<span className="inline-flex items-center gap-2.5">{route.label}</span>
+						<span className="inline-flex items-center gap-2">
+							{route.icon && <route.icon className="size-4" />}
+							{route.label}
+						</span>
 					</NavLink>
 				);
 			})}

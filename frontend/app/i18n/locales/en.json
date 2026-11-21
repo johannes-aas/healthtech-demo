@@ -49,6 +49,7 @@
     "label": "Views",
     "day": "Day",
     "week": "Week",
+    "weekShort": "Wk",
     "month": "Month",
     "selectionText": "You are viewing a {{view}}.",
     "dateSelectionSingle": "You have selected {{date}}.",
@@ -222,13 +223,16 @@
       },
       "selectUserPlaceholder": "Select team member",
       "clearUserSelection": "Clear user selection",
-      "clearExposureFilter": "Clear exposure filter"
+      "clearExposureFilter": "Clear exposure filter",
+      "showAllExposures": "Show all",
+      "showAllUsers": "Show all"
     },
     "actionCard": {
-      "safe": "Team status: Within exposure limits",
-      "warning": "Team status: Attention may be required",
+      "teamStatus": "Team status:",
+      "safe": "Within exposure limits",
+      "warning": "Action should be considered",
       "warningDescription": "One or more operators are above the action value. Monitoring or preventative measures may be needed.",
-      "danger": "Team status: Immediate action required",
+      "danger": "Immediate action required",
       "dangerDescription": "One or more operators are above the limit value. Immediate follow-up according to procedure is required.",
       "day": "Day",
       "week": "Week"
@@ -259,11 +263,9 @@
     },
     "subtitle": {
       "allExposureTypes": "All exposure types",
-      "viewDay": "Day",
-      "viewWeek": "Week {{week}}",
-      "viewMonth": "Month",
-      "dateDay": "{{date}}",
-      "dateRange": "{{startDate}} - {{endDate}}"
+      "today": "Today, {{date}}",
+      "yesterday": "Yesterday, {{date}}",
+      "week": "Week {{week}} · {{range}}"
     }
   },
   "securityRegulationsCard": {

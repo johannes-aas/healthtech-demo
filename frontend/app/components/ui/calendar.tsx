@@ -42,7 +42,7 @@ function Calendar({
 			)}
 			style={
 				{
-					"--wk-label": `'${t(($) => $.views.week)}'`,
+					"--wk-label": `'${t(($) => $.views.weekShort)}'`,
 				} as React.CSSProperties
 			}
 			captionLayout={captionLayout}
@@ -104,11 +104,11 @@ function Calendar({
 				),
 				week: cn("flex w-full mt-2", defaultClassNames.week),
 				week_number_header: cn(
-					"select-none w-(--cell-size) text-muted-foreground font-normal text-[0.8rem] flex items-center justify-center before:content-[var(--wk-label)]",
+					"select-none w-(--cell-size) -ml-1 text-muted-foreground/70 font-normal text-[0.6rem] flex items-center justify-center before:content-[var(--wk-label)]",
 					defaultClassNames.week_number_header,
 				),
 				week_number: cn(
-					"text-[0.8rem] select-none text-muted-foreground",
+					"-ml-1 text-[0.6rem] tabular-nums select-none text-muted-foreground/70",
 					defaultClassNames.week_number,
 				),
 				day: cn(

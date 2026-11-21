@@ -1,6 +1,5 @@
 import { ExportButton } from "@/components/export-button.tsx";
 import { ThresholdLine } from "@/components/exposure-line-chart/threshold-line.tsx";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
 import { useDate } from "@/features/date-picker/use-date.ts";
 import {
 	BaseExposureLineChartCard,
@@ -16,7 +15,6 @@ import {
 	type DustField,
 	defaultDustField,
 	type Exposure,
-	type ExposureUnit,
 	parseAsDustField,
 	parseAsExposureUnit,
 } from "@/lib/exposures.ts";
@@ -43,7 +41,7 @@ export function DustExposureLineChartCard({ userId }: Props) {
 	const chartContainerId = useId();
 
 	const [dustField] = useQueryState<DustField>("dustField", parseAsDustField.withDefault(defaultDustField));
-	const [dustUnit, setDustUnit] = useQueryState("unit", parseAsExposureUnit.withDefault("ug"));
+	const [dustUnit] = useQueryState("unit", parseAsExposureUnit.withDefault("ug"));
 
 	const exposure: Exposure = "dust";
 
@@ -103,12 +101,6 @@ export function DustExposureLineChartCard({ userId }: Props) {
 			dustField={query.field}
 			headerRight={
 				<div className="flex items-center gap-2">
-					<Tabs value={dustUnit} onValueChange={(v) => setDustUnit(v as ExposureUnit)}>
-						<TabsList>
-							<TabsTrigger value="ug">{t(($) => $.exposures.units.ug)}</TabsTrigger>
-							<TabsTrigger value="mg">{t(($) => $.exposures.units.mg)}</TabsTrigger>
-						</TabsList>
-					</Tabs>
 					<ExportButton
 						title={t(($) => $.common.exportAsPdf)}
 						onClick={() =>

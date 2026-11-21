@@ -158,7 +158,6 @@ export default function OperatorLiveView() {
 						<LiveExposureCard
 							exposure="dust"
 							exposureLabel="PM1 TWA"
-							exposureUnitLabel="µg/m³"
 							chartUnit="ug"
 							data={dustTwa1Data}
 							minTime={start}
@@ -170,7 +169,6 @@ export default function OperatorLiveView() {
 							exposure="dust"
 							exposureLabel="PM2.5 TWA"
 							exposureField="pm25_twa"
-							exposureUnitLabel="µg/m³"
 							chartUnit="ug"
 							data={dustTwa25Data}
 							minTime={start}
@@ -182,7 +180,6 @@ export default function OperatorLiveView() {
 							exposure="dust"
 							exposureLabel="PM10 TWA"
 							exposureField="pm10_twa"
-							exposureUnitLabel="µg/m³"
 							chartUnit="ug"
 							data={dustTwa10Data}
 							minTime={start}
@@ -201,7 +198,6 @@ export default function OperatorLiveView() {
 						<LiveExposureCard
 							exposure="noise"
 							exposureLabel={t(($) => $.exposures.noise)}
-							exposureUnitLabel="dB"
 							chartUnit="db"
 							data={noiseData}
 							minTime={start}
@@ -220,7 +216,6 @@ export default function OperatorLiveView() {
 						<LiveExposureCard
 							exposure="vibration"
 							exposureLabel={t(($) => $.exposures.vibration)}
-							exposureUnitLabel={t(($) => $.exposures.units.points)}
 							chartUnit="points"
 							data={vibrationData}
 							minTime={start}
@@ -291,7 +286,6 @@ interface LiveExposureCardProps {
 	exposure: "dust" | "noise" | "vibration";
 	exposureLabel: string;
 	exposureField?: ExposureTypeField;
-	exposureUnitLabel: string;
 	chartUnit: ExposureUnit;
 	data: Array<ExposureDto>;
 	minTime: TZDate;
@@ -305,7 +299,6 @@ const LiveExposureCard = ({
 	exposure,
 	exposureLabel,
 	exposureField,
-	exposureUnitLabel,
 	chartUnit,
 	minTime,
 	data,
@@ -341,7 +334,7 @@ const LiveExposureCard = ({
 				field={exposureField}
 				value={latestValue}
 				dangerLevel={latestDangerLevel}
-				unitLabel={exposureUnitLabel}
+				unit={chartUnit}
 				className="w-48"
 			/>
 			<div className="w-128 flex-1 self-stretch">
