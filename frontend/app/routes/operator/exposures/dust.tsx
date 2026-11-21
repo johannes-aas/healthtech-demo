@@ -5,7 +5,6 @@ import { ExposureLineChartCardSkeleton } from "@/features/exposure-line-chart-ca
 import { DustExposureLineChartCard } from "@/features/exposure-line-chart-card/dust-exposure-line-chart-card.tsx";
 import { ExposureGraphEmptyState, ExposureStatisticsSection } from "@/features/statistic-card.tsx";
 import { getMaxPointByValue } from "@/features/statistic-card-utils.ts";
-import { DustTrendLineChartCard } from "@/features/trend-line-chart-card/dust-trend-line-chart-card.tsx";
 import { useUser } from "@/features/user/user-context.tsx";
 import { useView } from "@/features/views/use-view.ts";
 import { WeekWidget } from "@/features/week-widget/week-widget.tsx";
@@ -72,7 +71,6 @@ export default function Dust() {
 	const calendarData = mapExposureDataToTimeBucketStatuses(data ?? [], exposure, false);
 	const { minHour, maxHour } = getHourDomain(hourDomain, data?.map((d) => d.time) ?? [], view);
 
-	const showTrendLineChart = view === "month" || view === "week";
 	const showDustStatistics = view === "day";
 
 	return (
@@ -117,7 +115,6 @@ export default function Dust() {
 					/>
 				)}
 			</div>
-			{showTrendLineChart && <DustTrendLineChartCard unit={dustUnit} />}
 		</div>
 	);
 }

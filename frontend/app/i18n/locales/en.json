@@ -284,13 +284,6 @@
     "previous": "Previous",
     "next": "Next"
   },
-  "exposureTrendLineChartCard": {
-    "title": {
-      "day": "Daily exposure trend",
-      "week": "Weekly exposure trend",
-      "month": "Monthly exposure trend"
-    }
-  },
   "exposureSlider": {
     "title": "Average exposure for {{view}}"
   },

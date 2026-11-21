@@ -4,7 +4,6 @@ import { ExposureLineChartCardSkeleton } from "@/features/exposure-line-chart-ca
 import VibrationExposureLineChartCard from "@/features/exposure-line-chart-card/vibration-exposure-line-chart-card.tsx";
 import { ExposureGraphEmptyState, ExposureStatisticsSection } from "@/features/statistic-card.tsx";
 import { getMaxPointByValue } from "@/features/statistic-card-utils.ts";
-import { VibrationTrendLineChartCard } from "@/features/trend-line-chart-card/vibration-trend-line-chart-card.tsx";
 import { useUser } from "@/features/user/user-context.tsx";
 import { parseAsView } from "@/features/views/utils.ts";
 import { WeekWidget } from "@/features/week-widget/week-widget.tsx";
@@ -63,7 +62,6 @@ export default function Vibration() {
 
 	const calendarData = mapExposureDataToTimeBucketStatuses(data ?? [], "vibration", false);
 
-	const showTrendLineChart = view === "month" || view === "week";
 	const showVibrationStatistics = view === "day";
 
 	return (
@@ -100,7 +98,6 @@ export default function Vibration() {
 					)}
 				</div>
 			</div>
-			{showTrendLineChart && <VibrationTrendLineChartCard />}
 		</div>
 	);
 }

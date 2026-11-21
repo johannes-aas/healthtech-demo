@@ -9,9 +9,6 @@ import NoiseExposureLineChartCard from "@/features/exposure-line-chart-card/nois
 import VibrationExposureLineChartCard from "@/features/exposure-line-chart-card/vibration-exposure-line-chart-card.tsx";
 import { ExposureStatisticsSection } from "@/features/statistic-card.tsx";
 import { getMaxPointByValue } from "@/features/statistic-card-utils.ts";
-import { DustTrendLineChartCard } from "@/features/trend-line-chart-card/dust-trend-line-chart-card.tsx";
-import { NoiseTrendLineChartCard } from "@/features/trend-line-chart-card/noise-trend-line-chart-card.tsx";
-import { VibrationTrendLineChartCard } from "@/features/trend-line-chart-card/vibration-trend-line-chart-card.tsx";
 import { useView } from "@/features/views/use-view.ts";
 import { WeekWidget } from "@/features/week-widget/week-widget.tsx";
 import { useFormatDate } from "@/hooks/use-format-date.ts";
@@ -226,7 +223,6 @@ function DustUserChart({ selectedUser }: { selectedUser: UserWithStatusDto }) {
 		view,
 	);
 
-	const showTrendLineChart = view === "month" || view === "week";
 	const showDustStatistics = view === "day";
 
 	return (
@@ -325,8 +321,6 @@ function DustUserChart({ selectedUser }: { selectedUser: UserWithStatusDto }) {
 					/>
 				</CardContent>
 			</Card>
-
-			{showTrendLineChart && <DustTrendLineChartCard unit={dustUnit} userId={selectedUser.id} />}
 		</div>
 	);
 }
@@ -374,7 +368,6 @@ function VibrationUserChart({ selectedUser }: { selectedUser: UserWithStatusDto 
 		view,
 	);
 
-	const showTrendLineChart = view === "month" || view === "week";
 	const showVibrationStatistics = view === "day";
 
 	return (
@@ -411,8 +404,6 @@ function VibrationUserChart({ selectedUser }: { selectedUser: UserWithStatusDto 
 					formatTime={(time) => formatDate(time, "HH:mm")}
 				/>
 			)}
-
-			{showTrendLineChart && <VibrationTrendLineChartCard userId={selectedUser.id} />}
 		</div>
 	);
 }
@@ -482,7 +473,6 @@ function NoiseUserChart({ selectedUser }: { selectedUser: UserWithStatusDto }) {
 		view,
 	);
 
-	const showTrendLineChart = view === "month" || view === "week";
 	const showNoiseStatistics = view === "day";
 
 	return (
@@ -526,8 +516,6 @@ function NoiseUserChart({ selectedUser }: { selectedUser: UserWithStatusDto }) {
 					formatTime={(time) => formatDate(time, "HH:mm")}
 				/>
 			)}
-
-			{showTrendLineChart && <NoiseTrendLineChartCard userId={selectedUser.id} />}
 		</div>
 	);
 }
