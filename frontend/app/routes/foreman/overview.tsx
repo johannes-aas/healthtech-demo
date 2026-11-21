@@ -133,8 +133,9 @@ export default function ForemanOverview() {
 								<h1 className="min-w-0 max-w-prose text-balance font-medium text-lg leading-tight md:text-2xl lg:text-3xl">
 									{title}
 								</h1>
-								<SelectionSubtitle className="shrink-0" />
 							</div>
+
+							<SelectionSubtitle />
 
 							{/* Negative inline margin stretches the divider across the section's padding to its borders */}
 							<Separator className="-mx-6 mt-1 data-[orientation=horizontal]:w-auto dark:bg-border/40" />
