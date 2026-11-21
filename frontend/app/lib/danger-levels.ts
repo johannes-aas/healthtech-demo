@@ -55,13 +55,12 @@ export const DangerLevels: Record<DangerLevel, DangerLevelInfo> = {
 
 export const mapDangerLevelToLabel = (dangerLevel: DangerLevel): string => t(($) => $.dangerLevels[dangerLevel]);
 
-export const mapDangerLevelToColor = (dangerLevel: DangerLevel): string => DangerLevels[dangerLevel].color;
-
 export const dangerlevelStyles = {
 	danger: {
 		bg: "bg-danger",
 		bgSubtle: "bg-danger-subtle",
 		text: "text-danger-text",
+		signalText: "text-danger",
 		border: "border-danger-border",
 		color: "var(--danger)",
 	},
@@ -69,6 +68,7 @@ export const dangerlevelStyles = {
 		bg: "bg-warning",
 		bgSubtle: "bg-warning-subtle",
 		text: "text-warning-text",
+		signalText: "text-warning",
 		border: "border-warning-border",
 		color: "var(--warning)",
 	},
@@ -76,6 +76,7 @@ export const dangerlevelStyles = {
 		bg: "bg-safe",
 		bgSubtle: "bg-safe-subtle",
 		text: "text-safe-text",
+		signalText: "text-safe",
 		border: "border-safe-border",
 		color: "var(--safe)",
 	},
@@ -83,6 +84,7 @@ export const dangerlevelStyles = {
 		bg: "bg-muted",
 		bgSubtle: "bg-muted",
 		text: "text-foreground",
+		signalText: "text-foreground",
 		border: "border-border",
 		color: "var(--foreground)",
 	},
@@ -92,6 +94,8 @@ export const dangerlevelStyles = {
 		bg: string;
 		bgSubtle: string;
 		text: string;
+		/** The solid signal color as text, unlike `text`, which is a high-contrast color for use on `bgSubtle`. */
+		signalText: string;
 		border: string;
 		color: string;
 	}

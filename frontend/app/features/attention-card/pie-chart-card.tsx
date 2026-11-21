@@ -2,13 +2,7 @@ import { ExposureIcon } from "@/components/exposure-icon.tsx";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card.tsx";
 import { UserStatusPieChart } from "@/components/users-status-pie-chart.tsx";
 import type { Exposure } from "@/features/exposure-picker/exposures.ts";
-import {
-	DANGER_LEVEL_SEVERITY,
-	type DangerLevel,
-	DangerLevelSchema,
-	dangerlevelStyles,
-	mapDangerLevelToColor,
-} from "@/lib/danger-levels.ts";
+import { DANGER_LEVEL_SEVERITY, type DangerLevel, DangerLevelSchema, dangerlevelStyles } from "@/lib/danger-levels.ts";
 import { cn } from "@/lib/utils.ts";
 import { ArrowRightIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -32,7 +26,7 @@ export const PieChartCard = ({ className, to, label, data, exposureType }: PieCh
 			<Card hoverable={true} className={cn("h-full gap-4", className)}>
 				<CardHeader className="text-sm">
 					<h2 className="flex items-center gap-3 text-sm uppercase tracking-wide">
-						<ExposureIcon type={exposureType} size="sm" />
+						<ExposureIcon type={exposureType} size="sm" className="border" />
 						{label}
 					</h2>
 				</CardHeader>
@@ -50,7 +44,7 @@ export const PieChartCard = ({ className, to, label, data, exposureType }: PieCh
 			<Card hoverable={true} className={cn("h-full gap-3 px-3 pt-3", className)}>
 				<CardHeader className="text-sm">
 					<h2 className="flex items-center gap-3 text-sm uppercase tracking-wide">
-						<ExposureIcon type={exposureType} size="sm" />
+						<ExposureIcon type={exposureType} size="sm" className="border" />
 						{label}
 					</h2>
 				</CardHeader>
@@ -65,7 +59,10 @@ export const PieChartCard = ({ className, to, label, data, exposureType }: PieCh
 											{t(($) => $.foremanDashboard.overview.statCards[level].label)}
 										</p>
 										<p
-											className={`text-2xl tabular-nums leading-6 text-${mapDangerLevelToColor(level)}`}
+											className={cn(
+												"text-2xl tabular-nums leading-6",
+												dangerlevelStyles[level].signalText,
+											)}
 										>
 											{data[level]}
 										</p>

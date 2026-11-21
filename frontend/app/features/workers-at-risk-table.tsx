@@ -1,7 +1,8 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
-import { DANGER_LEVEL_SEVERITY, mapDangerLevelToColor } from "@/lib/danger-levels.ts";
+import { DANGER_LEVEL_SEVERITY, dangerlevelStyles } from "@/lib/danger-levels.ts";
 import type { UserWithStatusDto } from "@/lib/dto/user.ts";
+import { cn } from "@/lib/utils.ts";
 import { ArrowRightIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
@@ -41,7 +42,10 @@ export function AtRiskTable({ users }: Props) {
 										<TableCell>
 											<div className="flex items-center gap-5">
 												<div
-													className={`h-3 w-3 rounded-sm bg-${mapDangerLevelToColor(sub.status.status)}`}
+													className={cn(
+														"h-3 w-3 rounded-sm",
+														dangerlevelStyles[sub.status.status].bg,
+													)}
 												/>
 												<span>{sub.name}</span>
 											</div>

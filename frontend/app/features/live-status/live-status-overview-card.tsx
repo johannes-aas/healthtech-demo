@@ -1,8 +1,8 @@
 import { Card } from "@/components/ui/card.tsx";
 import type { DangerLevel } from "@/lib/danger-levels.ts";
-import { mapDangerLevelToColor } from "@/lib/danger-levels.ts";
+import { dangerlevelStyles } from "@/lib/danger-levels.ts";
 import { exposures } from "@/lib/exposures.ts";
-import { getEmoji } from "@/lib/utils.ts";
+import { cn, getEmoji } from "@/lib/utils.ts";
 import { t } from "i18next";
 
 interface LiveStatusOverviewCardProps {
@@ -32,7 +32,10 @@ export const LiveStatusOverviewCard = ({ exposureDangerLevels }: LiveStatusOverv
 						<div>{t(($) => $.exposures[exposure])}</div>
 
 						<div
-							className={`flex flex-row items-center text-xs text-${mapDangerLevelToColor(dangerLevel)} gap-1`}
+							className={cn(
+								"flex flex-row items-center gap-1 text-xs",
+								dangerlevelStyles[dangerLevel].signalText,
+							)}
 						>
 							<p>{mapDangerLevelToLabel(dangerLevel)}</p>
 							<Icon className="h-5 w-5" />

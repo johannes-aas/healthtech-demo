@@ -83,7 +83,7 @@ export function DayWidget({ data, startHour = 0, endHour = 23, headerRight, buil
 						const rowContent = (
 							<>
 								<div className="sticky left-0 flex w-fit items-center gap-2 px-2 py-3">
-									<ExposureIcon type={exposure} size="sm" />
+									<ExposureIcon type={exposure} size="sm" className="border" />
 									<span className="text-base text-foreground">{t(($) => $.exposures[exposure])}</span>
 								</div>
 
