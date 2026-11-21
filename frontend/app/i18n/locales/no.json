@@ -243,10 +243,7 @@
     "searchPlaceholder": "Søk etter brukere..."
   },
   "demo": {
-    "currentRole": "Nåværende rolle:",
-    "navigate": {
-      "toRegister": "Gå til registreringssiden"
-    }
+    "currentRole": "Nåværende rolle:"
   },
   "select": {
     "all": "Velg alle",
@@ -265,17 +262,6 @@
       "dateDay": "{{date}}",
       "dateRange": "{{startDate}} - {{endDate}}"
     }
-  },
-  "register": {
-    "title": "Registrer til HealthTech",
-    "name": "Fullt navn",
-    "email": "E-postaddresse",
-    "password": "Passord",
-    "confirmPassword": "Bekreft passord",
-    "privacyConsent": "Jeg samtykker til å dele mine data med mine veiledere av hensyn til helse og sikkerhet.",
-    "createAccount": "Opprett konto",
-    "haveAccount": "Har du allerede en konto? ",
-    "login": "Logg inn"
   },
   "securityRegulationsCard": {
     "title": "Gjeldene sikkerhetsreguleringer",

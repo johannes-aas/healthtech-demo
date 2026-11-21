@@ -14,5 +14,4 @@ export default [
 		route("/operator/live", "routes/operator/live.tsx"),
 		route("/foreman/team", "routes/foreman/team.tsx"),
 	]),
-	route("/register", "routes/register.tsx"),
 ] satisfies RouteConfig;

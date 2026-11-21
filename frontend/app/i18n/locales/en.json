@@ -246,10 +246,7 @@
     "searchPlaceholder": "Search users..."
   },
   "demo": {
-    "currentRole": "Current role:",
-    "navigate": {
-      "toRegister": "Go to register page"
-    }
+    "currentRole": "Current role:"
   },
   "select": {
     "all": "Select all",
@@ -268,17 +265,6 @@
       "dateDay": "{{date}}",
       "dateRange": "{{startDate}} - {{endDate}}"
     }
-  },
-  "register": {
-    "title": "Register to HealthTech",
-    "name": "Full name",
-    "email": "Email address",
-    "password": "Password",
-    "confirmPassword": "Confirm password",
-    "privacyConsent": "I consent to sharing my data with my supervisors for health and safety purposes.",
-    "createAccount": "Create account",
-    "haveAccount": "Already have an account? ",
-    "login": "Log in"
   },
   "securityRegulationsCard": {
     "title": "Current safety regulations",

@@ -43,7 +43,7 @@ import {
 } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { href, Link, NavLink, Outlet, type To, useLocation, useNavigate } from "react-router";
+import { href, NavLink, Outlet, type To, useLocation, useNavigate } from "react-router";
 
 const Logo = () => (
 	<svg width="44" height="40" viewBox="0 0 44 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -378,17 +378,6 @@ function UserDropdown({
 								<span className="font-semibold">{userRoleToString(user.role, t)}</span>
 							</p>
 						)}
-
-						<Button
-							type="button"
-							className={cn(
-								"mt-2 w-full text-sm text-zinc-600 dark:text-zinc-300",
-								"bg-amber-200 hover:bg-amber-300 dark:bg-amber-900/75 dark:hover:bg-amber-800",
-							)}
-							asChild={true}
-						>
-							<Link to="/register">{t(($) => $.demo.navigate.toRegister)}</Link>
-						</Button>
 
 						{IS_DEMO_MODE && <ResetDemoDataButton />}
 					</div>
