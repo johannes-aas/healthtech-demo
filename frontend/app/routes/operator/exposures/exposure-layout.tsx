@@ -40,7 +40,7 @@ export default function ExposureLayout() {
 			)}
 		>
 			<header className={dashboardHeaderClassName}>
-				<ViewPicker className="w-full md:w-auto xl:w-73" />
+				<ViewPicker className="w-full md:w-auto xl:w-71" />
 
 				<ExposureToggle
 					value={exposure}
