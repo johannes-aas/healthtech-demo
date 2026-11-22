@@ -250,7 +250,11 @@
     "searchPlaceholder": "Search users..."
   },
   "demo": {
-    "currentRole": "Current role:"
+    "badge": "Demo",
+    "switchUser": "Switch demo user",
+    "hintTitle": "You're using a demo user",
+    "hintBody": "Open this menu to switch between the operator and foreman views.",
+    "hintDismiss": "Got it"
   },
   "select": {
     "all": "Select all",

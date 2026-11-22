@@ -25,6 +25,7 @@ import { useView } from "@/features/views/use-view.ts";
 import { useFormatDate } from "@/hooks/use-format-date.ts";
 import type { TranslateFn } from "@/i18n/config.ts";
 import { usersQueryOptions } from "@/lib/api.ts";
+import { DemoUserHint } from "@/lib/demo/demo-user-hint.tsx";
 import { ResetDemoDataButton } from "@/lib/demo/reset-demo-data-button.tsx";
 import { IS_DEMO_MODE } from "@/lib/demo/storage.ts";
 import { type User, UserRoleSchema } from "@/lib/dto/user.ts";
@@ -254,28 +255,48 @@ function UserDropdown({
 		closePopup: closePrivacySettingsPopup,
 	} = usePopup();
 
+	// Shown on every page load until dismissed or the menu is opened
+	const [showHint, setShowHint] = useState(true);
+	const dismissHint = () => setShowHint(false);
+
 	if (!user) return null;
 
 	const currentLanguage = i18n.language || "en";
 
 	return (
 		<>
-			<DropdownMenu>
-				<DropdownMenuTrigger asChild={true}>
-					<Button
-						variant="ghost"
-						className="h-11 max-w-[14rem] cursor-pointer gap-2 rounded-full px-1 md:pr-3"
-					>
-						<div className="flex size-9 items-center justify-center rounded-full bg-primary">
-							<UserIcon className="size-5 text-primary-foreground" />
-						</div>
-						{/* Avatar only on small screens, where the header has no room for the name */}
-						<div className="hidden min-w-0 grow text-left leading-tight md:block">
-							<p className="truncate font-medium">{shorthandName(user.name)}</p>
-							<p className="truncate text-foreground/60 text-xs">{user.location.site}</p>
-						</div>
-					</Button>
-				</DropdownMenuTrigger>
+			<DropdownMenu
+				onOpenChange={(open) => {
+					// Opening the menu is what the hint asks for, so it has done its job
+					if (open) dismissHint();
+				}}
+			>
+				<div className="relative">
+					<DropdownMenuTrigger asChild={true}>
+						<Button
+							variant="ghost"
+							title={t(($) => $.demo.switchUser)}
+							className="h-11 max-w-[14rem] cursor-pointer gap-2 rounded-full px-1 md:pr-3"
+						>
+							<div className="relative shrink-0">
+								<div className="flex size-9 items-center justify-center rounded-full bg-primary ring-2 ring-amber-500 dark:ring-amber-700">
+									<UserIcon className="size-5 text-primary-foreground" />
+								</div>
+								{/* Same amber as the DEMO box in the menu, so the two read as related */}
+								<span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 rounded-full border border-amber-500 bg-amber-100 px-1 font-semibold text-[0.5rem] text-amber-900 uppercase leading-3 tracking-wider dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
+									{t(($) => $.demo.badge)}
+								</span>
+							</div>
+							{/* Avatar only on small screens, where the header has no room for the name */}
+							<div className="hidden min-w-0 grow text-left leading-tight md:block">
+								<p className="truncate font-medium">{shorthandName(user.name)}</p>
+								<p className="truncate text-foreground/60 text-xs">{user.location.site}</p>
+							</div>
+						</Button>
+					</DropdownMenuTrigger>
+
+					{showHint && <DemoUserHint onDismiss={dismissHint} />}
+				</div>
 
 				<DropdownMenuContent align="end" sideOffset={10}>
 					<DropdownMenuItem onSelect={openProfilePopup}>
@@ -358,11 +379,15 @@ function UserDropdown({
 
 					<div className="m-1 mt-3">
 						{/* Tab-shaped label: overlaps the box's top border so the two read as one shape */}
-						<span className="relative z-10 -mb-0.5 block w-fit rounded-t-md border-[1.5px] border-amber-500 border-b-0 bg-amber-100 px-2 pt-0.5 font-semibold text-[11px] text-amber-900 uppercase leading-3 tracking-widest dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
+						<span className="relative z-10 -mb-[1.5px] block w-fit rounded-t-md border-[1.5px] border-amber-500 border-b-0 bg-amber-100 px-2.5 pt-0.5 font-semibold text-[11px] text-amber-900 uppercase leading-3 tracking-widest dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
 							{"Demo"}
 						</span>
 
 						<div className="rounded-lg rounded-tl-none border-[1.5px] border-amber-500 bg-amber-100 p-2.5 dark:border-amber-800 dark:bg-amber-950">
+							<p className="mb-2 font-medium text-amber-950 text-xs dark:text-amber-50">
+								{t(($) => $.demo.switchUser)}
+							</p>
+
 							<div className="flex gap-2">
 								{users.length > 0 ? (
 									Object.keys(UserRoleSchema.enum).map((role) => {
@@ -396,15 +421,6 @@ function UserDropdown({
 									<Skeleton className="h-8 w-36 bg-amber-200 dark:bg-amber-900/40" />
 								)}
 							</div>
-
-							{user.role && (
-								<p className="mt-2 text-amber-800 text-xs dark:text-amber-300/80">
-									{t(($) => $.demo.currentRole)}{" "}
-									<span className="font-semibold text-amber-950 dark:text-amber-100">
-										{userRoleToString(user.role, t)}
-									</span>
-								</p>
-							)}
 
 							{IS_DEMO_MODE && (
 								<>

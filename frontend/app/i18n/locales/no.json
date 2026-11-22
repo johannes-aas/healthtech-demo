@@ -247,7 +247,11 @@
     "searchPlaceholder": "Søk etter brukere..."
   },
   "demo": {
-    "currentRole": "Nåværende rolle:"
+    "badge": "Demo",
+    "switchUser": "Bytt demobruker",
+    "hintTitle": "Du bruker en demobruker",
+    "hintBody": "Åpne denne menyen for å bytte mellom operatør- og formannsvisningen.",
+    "hintDismiss": "Skjønner"
   },
   "select": {
     "all": "Velg alle",
