@@ -36,11 +36,11 @@ export default function ExposureLayout() {
 	return (
 		<div
 			className={dashboardGridClassName(
-				"xl:grid-cols-[calc(var(--spacing)*73)_minmax(0,3fr)_minmax(calc(var(--spacing)*50),1fr)]",
+				"xl:grid-cols-[calc(var(--spacing)*71)_minmax(0,3fr)_minmax(calc(var(--spacing)*50),1fr)]",
 			)}
 		>
 			<header className={dashboardHeaderClassName}>
-				<ViewPicker className="w-full md:w-auto xl:w-73" />
+				<ViewPicker className="w-full md:w-auto xl:w-71" />
 
 				<ExposureToggle
 					value={exposure}
