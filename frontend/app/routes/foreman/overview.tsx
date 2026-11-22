@@ -73,7 +73,7 @@ export default function ForemanOverview() {
 	const title = resolveForemanOverviewTitle(t, exposure, selectedUser);
 
 	return (
-		<div className={dashboardGridClassName("xl:grid-cols-[calc(var(--spacing)*73)_minmax(0,1fr)_20%]")}>
+		<div className={dashboardGridClassName("xl:grid-cols-[calc(var(--spacing)*71)_minmax(0,1fr)_20%]")}>
 			<header className={dashboardHeaderClassName}>
 				<ViewPicker allowedViews={["day", "week"]} className="w-full md:w-auto xl:w-73" />
 
@@ -197,7 +197,7 @@ function ExposureSummaryGrid({ thresholdSummary }: { thresholdSummary: Threshold
 	return (
 		<div className="flex flex-col gap-2">
 			<h2 className="font-medium text-lg">{t(($) => $.foremanDashboard.overview.exposure)}</h2>
-			<div className="grid w-full @xl:grid-cols-3 grid-cols-1 gap-4">
+			<div className="grid w-full grid-cols-1 @lg:grid-cols-2 @3xl:grid-cols-3 gap-4">
 				{exposures.map((exposureType) => {
 					// Keep the current query params (date, view, ...) so the selected period is preserved
 					const exposureSearchParams = new URLSearchParams(searchParams);

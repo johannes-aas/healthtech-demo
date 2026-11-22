@@ -141,9 +141,9 @@ export default function OperatorLiveView() {
 			className={cn(
 				"flex w-full flex-col gap-4",
 				// md to xl: the time range with the side cards under it on the left, charts on the right
-				"md:grid md:grid-cols-[calc(var(--spacing)*73)_minmax(0,1fr)] md:grid-rows-[auto_1fr]",
+				"md:grid md:grid-cols-[calc(var(--spacing)*71)_minmax(0,1fr)] md:grid-rows-[auto_1fr]",
 				// xl and up: side cards, charts and time range side by side
-				"xl:grid-cols-[minmax(calc(var(--spacing)*40),1fr)_minmax(0,3fr)_calc(var(--spacing)*73)] xl:grid-rows-none",
+				"xl:grid-cols-[minmax(calc(var(--spacing)*40),1fr)_minmax(0,3fr)_calc(var(--spacing)*71)] xl:grid-rows-none",
 			)}
 		>
 			{/* On phones the side cards go under the charts */}

@@ -23,7 +23,7 @@ export const PieChartCard = ({ className, to, label, data, exposureType }: PieCh
 
 	if (!hasData) {
 		return (
-			<Card hoverable={true} className={cn("h-full gap-4", className)}>
+			<Card hoverable={true} className={cn("h-full gap-4 px-2", className)}>
 				<CardHeader className="text-sm">
 					<h2 className="flex items-center gap-3 text-sm uppercase tracking-wide">
 						<ExposureIcon type={exposureType} size="sm" className="border" />
@@ -41,7 +41,7 @@ export const PieChartCard = ({ className, to, label, data, exposureType }: PieCh
 
 	return (
 		<Link to={to} className={className}>
-			<Card hoverable={true} className={cn("h-full gap-3 px-3 pt-3", className)}>
+			<Card hoverable={true} className={cn("h-full gap-3 px-2 pt-3", className)}>
 				<CardHeader className="text-sm">
 					<h2 className="flex items-center gap-3 text-sm uppercase tracking-wide">
 						<ExposureIcon type={exposureType} size="sm" className="border" />

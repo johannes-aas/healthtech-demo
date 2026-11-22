@@ -12,13 +12,13 @@ import { cn } from "@/lib/utils.ts";
 
 /**
  * Grid wrapper. `xlColumnsClassName` sets the three-column template from `xl` up, e.g.
- * `xl:grid-cols-[calc(var(--spacing)*73)_minmax(0,1fr)_20%]`.
+ * `xl:grid-cols-[calc(var(--spacing)*71)_minmax(0,1fr)_20%]`.
  */
 export function dashboardGridClassName(xlColumnsClassName: string) {
 	return cn(
 		"grid w-full flex-1 grid-cols-1 gap-6",
-		// 73 comes from w-65 on DatePicker's Calendar + p-4 on its outer div (so 8 spacings for both sides)
-		"md:grid-cols-[calc(var(--spacing)*73)_minmax(0,1fr)] md:grid-rows-[auto_auto_1fr]",
+		// 71 comes from w-65 on DatePicker's Calendar + px-3 on its outer div in DatePickerCard (so 6 spacings for both sides)
+		"md:grid-cols-[calc(var(--spacing)*71)_minmax(0,1fr)] md:grid-rows-[auto_auto_1fr]",
 		"xl:grid-rows-[auto_1fr]",
 		xlColumnsClassName,
 		// Cancels the layout's bottom margin so the main panel reaches the bottom edge

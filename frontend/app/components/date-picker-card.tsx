@@ -20,7 +20,7 @@ export function DatePickerCard({ minDate, maxDate, ...datePickerProps }: DatePic
 			</CardLabelHeader>
 
 			{/* Centered for when the card is wider than the calendar (single-column layout on phones) */}
-			<div className="flex justify-center p-4">
+			<div className="flex justify-center px-3 py-4">
 				<DatePicker {...datePickerProps} />
 			</div>
 		</Card>
