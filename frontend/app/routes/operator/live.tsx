@@ -1,3 +1,4 @@
+import { ExposureIcon } from "@/components/exposure-icon.tsx";
 import { ThresholdLine } from "@/components/exposure-line-chart/threshold-line.tsx";
 import { ExposureSlider } from "@/components/exposure-slider.tsx";
 import { NotesCard } from "@/components/notes-card.tsx";
@@ -139,25 +140,70 @@ export default function OperatorLiveView() {
 	return (
 		<div
 			className={cn(
-				"flex w-full flex-col gap-4",
+				// The right column and the column gap match the other operator pages (see exposure-layout.tsx). The left column
+				// is wider than their calendar column (71), since there is no calendar here to fit.
+				"flex w-full flex-col gap-4 md:gap-x-6",
 				// md to xl: the time range with the side cards under it on the left, charts on the right
-				"md:grid md:grid-cols-[calc(var(--spacing)*71)_minmax(0,1fr)] md:grid-rows-[auto_1fr]",
-				// xl and up: side cards, charts and time range side by side
-				"xl:grid-cols-[minmax(calc(var(--spacing)*40),1fr)_minmax(0,3fr)_calc(var(--spacing)*71)] xl:grid-rows-none",
+				"md:grid md:grid-cols-[calc(var(--spacing)*76)_minmax(0,1fr)] md:grid-rows-[auto_1fr]",
+				// xl and up: time range, charts and side cards side by side
+				"xl:grid-cols-[calc(var(--spacing)*76)_minmax(0,3fr)_minmax(calc(var(--spacing)*50),1fr)] xl:grid-rows-none",
 			)}
 		>
-			{/* On phones the side cards go under the charts */}
-			<aside className="order-last flex flex-col gap-4 md:order-none md:col-start-1 md:row-start-2 xl:row-start-1">
-				<SecurityRegulationsCard />
-				<NotesCard />
-				<LimitExplanation />
+			<aside className="md:col-start-1 md:row-start-1">
+				<Card muted={true} className="flex flex-col gap-4">
+					<div className="flex w-full flex-row justify-between">
+						<p className="flex items-center gap-2 text-sm">
+							<Clock size="1rem" />
+							{t(($) => $.live.timeRange.label)}
+						</p>
+						<p className="text-sm">{formattedDate}</p>
+					</div>
+					<ToggleGroup
+						type="single"
+						value={timeRange}
+						variant="outline"
+						className="w-full"
+						onValueChange={(value: TimeRangeOption | "") => {
+							if (value) {
+								setTimeRange(value);
+							}
+						}}
+					>
+						<ToggleGroupItem
+							className="flex-1 text-xs"
+							value="30"
+							aria-label={t(($) => $.live.timeRange.options.thirtyMinutes)}
+						>
+							<p>{t(($) => $.live.timeRange.options.thirtyMinutes)}</p>
+						</ToggleGroupItem>
+						<ToggleGroupItem
+							className="flex-1 text-xs"
+							value="60"
+							aria-label={t(($) => $.live.timeRange.options.oneHour)}
+						>
+							<p>{t(($) => $.live.timeRange.options.oneHour)}</p>
+						</ToggleGroupItem>
+						<ToggleGroupItem
+							className="flex-1 text-xs"
+							value="180"
+							aria-label={t(($) => $.live.timeRange.options.threeHours)}
+						>
+							<p>{t(($) => $.live.timeRange.options.threeHours)}</p>
+						</ToggleGroupItem>
+						<ToggleGroupItem
+							className="flex-1 text-xs"
+							value="480"
+							aria-label={t(($) => $.live.timeRange.options.eightHours)}
+						>
+							<p>{t(($) => $.live.timeRange.options.eightHours)}</p>
+						</ToggleGroupItem>
+					</ToggleGroup>
+				</Card>
 			</aside>
 
 			<div className="flex min-w-0 flex-col gap-4 md:col-start-2 md:row-span-2 md:row-start-1 xl:row-span-1">
 				<Card>
-					<CardHeader>
-						<CardTitle>{t(($) => $.exposures.dust)}</CardTitle>
-					</CardHeader>
+					<LiveCardHeader exposure="dust" />
 					<CardContent>
 						<LiveExposureCard
 							exposure="dust"
@@ -195,13 +241,10 @@ export default function OperatorLiveView() {
 				</Card>
 
 				<Card>
-					<CardHeader>
-						<CardTitle>{t(($) => $.exposures.noise)}</CardTitle>
-					</CardHeader>
+					<LiveCardHeader exposure="noise" />
 					<CardContent>
 						<LiveExposureCard
 							exposure="noise"
-							exposureLabel={t(($) => $.exposures.noise)}
 							chartUnit="db"
 							data={noiseData}
 							minTime={start}
@@ -213,13 +256,10 @@ export default function OperatorLiveView() {
 				</Card>
 
 				<Card>
-					<CardHeader>
-						<CardTitle>{t(($) => $.exposures.vibration)}</CardTitle>
-					</CardHeader>
+					<LiveCardHeader exposure="vibration" />
 					<CardContent>
 						<LiveExposureCard
 							exposure="vibration"
-							exposureLabel={t(($) => $.exposures.vibration)}
 							chartUnit="points"
 							data={vibrationData}
 							minTime={start}
@@ -232,64 +272,34 @@ export default function OperatorLiveView() {
 				</Card>
 			</div>
 
-			{/* The time range controls the charts, so it comes first when the columns stack */}
-			<aside className="order-first md:order-none md:col-start-1 md:row-start-1 xl:col-start-3">
-				<Card muted={true} className="flex flex-col gap-4">
-					<div className="flex w-full flex-row justify-between">
-						<p className="flex items-center gap-2 text-sm">
-							<Clock size="1rem" />
-							{t(($) => $.live.timeRange.label)}
-						</p>
-						<p className="text-sm">{formattedDate}</p>
-					</div>
-					<ToggleGroup
-						type="single"
-						value={timeRange}
-						variant="outline"
-						onValueChange={(value: TimeRangeOption | "") => {
-							if (value) {
-								setTimeRange(value);
-							}
-						}}
-					>
-						<ToggleGroupItem
-							className="text-xs"
-							value="30"
-							aria-label={t(($) => $.live.timeRange.options.thirtyMinutes)}
-						>
-							<p>{t(($) => $.live.timeRange.options.thirtyMinutes)}</p>
-						</ToggleGroupItem>
-						<ToggleGroupItem
-							className="text-xs"
-							value="60"
-							aria-label={t(($) => $.live.timeRange.options.oneHour)}
-						>
-							<p>{t(($) => $.live.timeRange.options.oneHour)}</p>
-						</ToggleGroupItem>
-						<ToggleGroupItem
-							className="text-xs"
-							value="180"
-							aria-label={t(($) => $.live.timeRange.options.threeHours)}
-						>
-							<p>{t(($) => $.live.timeRange.options.threeHours)}</p>
-						</ToggleGroupItem>
-						<ToggleGroupItem
-							className="text-xs"
-							value="480"
-							aria-label={t(($) => $.live.timeRange.options.eightHours)}
-						>
-							<p>{t(($) => $.live.timeRange.options.eightHours)}</p>
-						</ToggleGroupItem>
-					</ToggleGroup>
-				</Card>
+			<aside className="flex flex-col gap-4 md:col-start-1 md:row-start-2 xl:col-start-3 xl:row-start-1">
+				<SecurityRegulationsCard />
+				<NotesCard />
+				<LimitExplanation />
 			</aside>
 		</div>
 	);
 }
 
+type LiveExposure = "dust" | "noise" | "vibration";
+
+const LiveCardHeader = ({ exposure }: { exposure: LiveExposure }) => {
+	const { t } = useTranslation();
+
+	return (
+		<CardHeader>
+			<CardTitle className="flex items-center gap-3">
+				<ExposureIcon type={exposure} size="sm" className="shrink-0 border" />
+				{t(($) => $.exposures[exposure])}
+			</CardTitle>
+		</CardHeader>
+	);
+};
+
 interface LiveExposureCardProps {
-	exposure: "dust" | "noise" | "vibration";
-	exposureLabel: string;
+	exposure: LiveExposure;
+	/** Shown above the slider. Only needed when the card holds several fields, like the dust PM sizes. */
+	exposureLabel?: string;
 	exposureField?: ExposureTypeField;
 	chartUnit: ExposureUnit;
 	data: Array<ExposureDto>;

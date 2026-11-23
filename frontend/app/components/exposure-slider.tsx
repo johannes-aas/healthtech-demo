@@ -1,4 +1,3 @@
-import { ExposureIcon } from "@/components/exposure-icon.tsx";
 import type { Exposure } from "@/features/exposure-picker/exposures.ts";
 import { type DangerLevel, dangerlevelStyles } from "@/lib/danger-levels.ts";
 import type { ExposureTypeField } from "@/lib/dto/exposure.ts";
@@ -14,7 +13,7 @@ interface Props {
 	dangerLevel?: DangerLevel;
 	/** Display unit. Values are always passed in the base unit (µg/m³ for dust). */
 	unit: ExposureUnit;
-	label: string;
+	label?: string;
 	className?: string;
 }
 
@@ -38,12 +37,9 @@ export function ExposureSlider({ exposure, field, value, dangerLevel, unit, labe
 
 	return (
 		<div className={cn("flex w-full flex-col gap-1.5 rounded-xl border border-transparent p-3", className)}>
-			<div className="flex items-center gap-1.5 font-semibold text-sm">
-				<ExposureIcon type={exposure} size="xs" />
-				<span className="flex flex-row items-center gap-3">
-					<span>{label}</span>
-					<Emoji style={{ color }} size={20} />
-				</span>
+			<div className="flex items-center gap-3 font-semibold text-sm">
+				{label && <span>{label}</span>}
+				<Emoji style={{ color }} size={20} />
 			</div>
 
 			<div className="relative flex items-center py-2">
