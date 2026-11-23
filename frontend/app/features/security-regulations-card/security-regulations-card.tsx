@@ -19,8 +19,8 @@ export const SecurityRegulationsCard = () => {
 			<CardContent>
 				<ul className="space-y-3">
 					{regulations.map(({ icon: Icon, label }) => (
-						<li key={label} className="flex items-center gap-3">
-							<Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
+						<li key={label} className="flex items-center gap-2 text-sm">
+							<Icon className="size-3.5 shrink-0 text-muted-foreground" />
 							<span>{label}</span>
 						</li>
 					))}
